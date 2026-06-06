@@ -115,8 +115,8 @@ export default {
       complaints: [],
       users: [],
       form: { customer_id: '', title: '', description: '' },
-      apiBase: 'http://localhost:8081/api/complaints',
-      userApiBase: 'http://localhost:8082/api/v1/users/public',
+      apiBase: 'http://localhost:8080/api/complaints',
+      userApiBase: 'http://localhost:8080/api/v1/users/public',
       isFetching: false,
       isSubmitting: false
     }

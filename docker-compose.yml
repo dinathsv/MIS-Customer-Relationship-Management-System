@@ -33,8 +33,6 @@ services:
     build:
       context: ./sales-module/backend
     container_name: sales-backend
-    ports:
-      - "8080:8080"
     environment:
       DB_HOST: salesdb
       DB_PORT: 5432
@@ -55,8 +53,6 @@ services:
     build:
       context: ./sales-module/frontend
     container_name: sales-frontend
-    ports:
-      - "8086:80"
     depends_on:
       - sales-backend
     restart: unless-stopped
@@ -86,8 +82,6 @@ services:
     build:
       context: ./complain-management/backend
     container_name: crm_complain_backend
-    ports:
-      - "8081:8080"
     environment:
       DATABASE_URL: postgres://user:password@crm_complain_db:5432/crm_db?sslmode=disable
     depends_on:
@@ -99,8 +93,6 @@ services:
     build:
       context: ./complain-management/frontend
     container_name: crm_complain_frontend
-    ports:
-      - "3001:3000"
     depends_on:
       - complain-backend
     networks:
@@ -136,8 +128,6 @@ services:
       context: "./user management/backend"
       dockerfile: dockerfile
     container_name: usermgmt_backend
-    ports:
-      - "8082:8080"
     environment:
       DB_HOST: usermgmt_db
       DB_PORT: 5432
@@ -156,8 +146,6 @@ services:
       context: "./user management/frontend"
       dockerfile: dockerfile
     container_name: usermgmt_frontend
-    ports:
-      - "8083:80"
     depends_on:
       - usermgmt-backend
     restart: unless-stopped
@@ -195,8 +183,6 @@ services:
       context: ./feedback-module/feedback-module/backend
       dockerfile: Dockerfile
     container_name: crm_feedback_backend
-    ports:
-      - "8084:8080"
     environment:
       DATABASE_URL: "host=crm_feedback_db port=5432 user=crmuser password=crmpassword dbname=crmdb sslmode=disable"
       GIN_MODE: release
@@ -213,8 +199,6 @@ services:
       context: ./feedback-module/feedback-module/frontend
       dockerfile: Dockerfile
     container_name: crm_feedback_frontend
-    ports:
-      - "8085:80"
     depends_on:
       - feedback-backend
     restart: unless-stopped
@@ -232,6 +216,21 @@ services:
     container_name: crm_portal
     ports:
       - "3000:80"
+    restart: unless-stopped
+    networks:
+      - crm-network
+
+  backend-gateway:
+    build:
+      context: ./backend-gateway
+    container_name: crm_backend_gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - sales-backend
+      - complain-backend
+      - usermgmt-backend
+      - feedback-backend
     restart: unless-stopped
     networks:
       - crm-network

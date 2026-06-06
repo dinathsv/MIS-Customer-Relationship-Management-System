@@ -1,0 +1,14 @@
+{
+  "name": "complain-frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite --host --port 3000"
+  },
+  "dependencies": {
+    "vue": "^3.3.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.2.3",
+    "vite": "^4.3.9"
+  }
+}

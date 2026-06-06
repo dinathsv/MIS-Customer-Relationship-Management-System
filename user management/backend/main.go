@@ -38,6 +38,13 @@ func main() {
 		authRoutes.POST("/logout", controllers.LogoutUser)
 	}
 
+	// Public routes for cross-module integration (no auth required)
+	publicRoutes := r.Group("/api/v1/users")
+	{
+		publicRoutes.GET("/public", controllers.GetAllUsersPublic)
+		publicRoutes.GET("/public/:id", controllers.CheckUserExists)
+	}
+
 	protectedRoutes := r.Group("/api/v1")
 	protectedRoutes.Use(middleware.AuthRequired())
 	{

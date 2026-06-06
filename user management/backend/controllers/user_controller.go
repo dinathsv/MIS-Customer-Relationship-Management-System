@@ -194,3 +194,53 @@ func UpdatePassword(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Password changed successfully"})
 }
+
+// GetAllUsersPublic returns all active users (public, no auth required)
+// Used by Sales, Complain, and Feedback modules for cross-module integration
+func GetAllUsersPublic(c *gin.Context) {
+	rows, err := config.DB.Query(context.Background(),
+		"SELECT user_id, full_name, username, email, role_id, status FROM users WHERE status = 'active'")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
+		return
+	}
+	defer rows.Close()
+
+	type PublicUser struct {
+		UserID   int    `json:"user_id"`
+		FullName string `json:"full_name"`
+		Username string `json:"username"`
+		Email    string `json:"email"`
+		RoleID   int    `json:"role_id"`
+		Status   string `json:"status"`
+	}
+
+	var users []PublicUser
+	for rows.Next() {
+		var u PublicUser
+		if err := rows.Scan(&u.UserID, &u.FullName, &u.Username, &u.Email, &u.RoleID, &u.Status); err != nil {
+			continue
+		}
+		users = append(users, u)
+	}
+
+	if users == nil {
+		users = []PublicUser{}
+	}
+
+	c.JSON(http.StatusOK, users)
+}
+
+// CheckUserExists checks if a user with the given ID exists (public, no auth required)
+func CheckUserExists(c *gin.Context) {
+	id := c.Param("id")
+	var exists bool
+	err := config.DB.QueryRow(context.Background(),
+		"SELECT EXISTS(SELECT 1 FROM users WHERE user_id = $1 AND status = 'active')", id).Scan(&exists)
+	if err != nil || !exists {
+		c.JSON(http.StatusNotFound, gin.H{"exists": false, "error": "User not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"exists": true, "user_id": id})
+}

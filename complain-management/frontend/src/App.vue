@@ -30,9 +30,14 @@
           
           <form @submit.prevent="submitComplaint" class="complaint-form">
             <div class="form-group">
-              <label>Customer ID (Shared Link)</label>
+              <label>Customer (from User Management)</label>
               <div class="input-wrapper">
-                <input type="number" v-model.number="form.customer_id" required placeholder="e.g. 101" />
+                <select v-model.number="form.customer_id" required class="glass-select">
+                  <option value="" disabled>Select a customer</option>
+                  <option v-for="u in users" :key="u.user_id" :value="u.user_id">
+                    {{ u.full_name }} ({{ u.email }})
+                  </option>
+                </select>
               </div>
             </div>
             
@@ -108,16 +113,27 @@ export default {
   data() {
     return {
       complaints: [],
-      form: { customer_id: null, title: '', description: '' },
+      users: [],
+      form: { customer_id: '', title: '', description: '' },
       apiBase: 'http://localhost:8081/api/complaints',
+      userApiBase: 'http://localhost:8082/api/v1/users/public',
       isFetching: false,
       isSubmitting: false
     }
   },
   mounted() {
+    this.fetchUsers();
     this.fetchComplaints();
   },
   methods: {
+    async fetchUsers() {
+      try {
+        const res = await fetch(this.userApiBase);
+        this.users = await res.json();
+      } catch (err) {
+        console.error("Error fetching users:", err);
+      }
+    },
     async fetchComplaints() {
       this.isFetching = true;
       try {
@@ -139,7 +155,7 @@ export default {
           body: JSON.stringify(this.form)
         });
         if (res.ok) {
-          this.form = { customer_id: null, title: '', description: '' };
+          this.form = { customer_id: '', title: '', description: '' };
           await this.fetchComplaints();
         }
       } catch (err) {
@@ -353,7 +369,8 @@ body {
   transition: all 0.2s;
 }
 .input-wrapper input:focus,
-.input-wrapper textarea:focus {
+.input-wrapper textarea:focus,
+.input-wrapper select:focus {
   outline: none;
   border-color: var(--primary);
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
@@ -361,6 +378,24 @@ body {
 .input-wrapper textarea {
   min-height: 100px;
   resize: vertical;
+}
+
+.glass-select {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--panel-border);
+  color: #fff;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  cursor: pointer;
+  appearance: none;
+}
+.glass-select option {
+  background-color: var(--bg-color);
+  color: #fff;
 }
 
 .submit-btn {

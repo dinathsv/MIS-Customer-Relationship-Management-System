@@ -26,17 +26,19 @@
           Customer ID <span class="text-rose-400">*</span>
         </label>
         <div class="relative">
-          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm" style="color: var(--text-secondary)">
-            CRM-
-          </span>
-          <input
-            v-model="form.customer_id"
-            type="text"
-            placeholder="e.g. CRM-2001"
-            class="glass-input pl-12"
+          <select
+            v-model.number="form.customer_id"
+            class="glass-select pr-10"
             :class="{ 'border-rose-500/60': errors.customer_id }"
-            @blur="validateField('customer_id')"
-          />
+            @change="validateField('customer_id')"
+          >
+            <option value="" disabled>Select a customer...</option>
+            <option v-for="u in users" :key="u.user_id" :value="u.user_id">
+              {{ u.full_name }} ({{ u.email }})
+            </option>
+          </select>
+          <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm"
+                style="color: var(--text-secondary)">▼</span>
         </div>
         <p v-if="errors.customer_id" class="text-xs text-rose-400 mt-1.5">{{ errors.customer_id }}</p>
       </div>
@@ -138,7 +140,7 @@
              class="flex items-center justify-between rounded-xl p-3"
              style="background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border)">
           <div>
-            <p class="text-xs font-mono" style="color: var(--text-secondary)">{{ formatCustomerIdForDisplay(fb.customer_id) }}</p>
+            <p class="text-xs font-mono" style="color: var(--text-secondary)">{{ fb.customer_id }}</p>
             <p class="text-xs text-white/70">{{ fb.category }}</p>
           </div>
           <div class="flex items-center gap-2">
@@ -168,6 +170,7 @@ const categories = [
 
 const ratingLabels = ['', 'Terrible', 'Poor', 'Average', 'Good', 'Excellent']
 
+const users = ref([])
 const form = ref({ customer_id: '', rating: 0, category: '', comments: '' })
 const errors = ref({})
 const hoveredStar = ref(0)
@@ -182,9 +185,8 @@ const ratingLabel = computed(() => ratingLabels[hoveredStar.value || form.value.
 function validateField(field) {
   errors.value[field] = ''
   if (field === 'customer_id') {
-    const normalized = normalizeCustomerId(form.value.customer_id)
-    if (!form.value.customer_id.trim() || normalized === 'CRM-') {
-      errors.value.customer_id = 'Customer ID is required'
+    if (!form.value.customer_id) {
+      errors.value.customer_id = 'Please select a customer'
     }
   }
   if (field === 'rating' && !form.value.rating) {
@@ -204,10 +206,9 @@ async function handleSubmit() {
   if (!validate()) return
   loading.value = true
   submitError.value = ''
-  const normalizedCustomerId = normalizeCustomerId(form.value.customer_id)
   try {
     const result = await submitFeedback({
-      customer_id: normalizedCustomerId,
+      customer_id: String(form.value.customer_id),
       rating:      form.value.rating,
       category:    form.value.category,
       comments:    form.value.comments.trim(),
@@ -237,19 +238,18 @@ function resetForm() {
   submitError.value = ''
 }
 
-function normalizeCustomerId(value) {
-  const raw = String(value || '').trim().toUpperCase()
-  if (!raw) return ''
-  const stripped = raw.startsWith('CRM-') ? raw.slice(4) : raw.replace(/^CRM/, '').replace(/^-/, '')
-  return `CRM-${stripped}`
-}
-
-function formatCustomerIdForDisplay(value) {
-  return normalizeCustomerId(value)
+async function fetchUsers() {
+  try {
+    const res = await fetch('http://localhost:8082/api/v1/users/public')
+    users.value = await res.json()
+  } catch (err) {
+    console.error("Error fetching users:", err)
+  }
 }
 
 const emit = defineEmits(['submitted'])
 
-// Load recent on mount
+// Load recent and users on mount
 refreshRecent()
+fetchUsers()
 </script>

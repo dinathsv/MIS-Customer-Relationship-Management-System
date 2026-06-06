@@ -8,7 +8,7 @@ const api = axios.create({
 
 // User Management API (cross-module)
 const userApi = axios.create({
-  baseURL: 'http://localhost:8082/api/v1',
+  baseURL: 'http://localhost:8080/api/v1',
   timeout: 10000,
   headers: { 'Content-Type': 'application/json' }
 })
@@ -27,7 +27,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
-      window.location.href = '/login'
+      window.location.href = '/sales/login'
     }
     return Promise.reject(error)
   }

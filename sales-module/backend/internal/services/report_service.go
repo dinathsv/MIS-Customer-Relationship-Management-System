@@ -71,24 +71,7 @@ func (s *ReportService) GetSalesSummary(period string) ([]models.SalesSummary, e
 	return summaries, nil
 }
 
-func (s *ReportService) GetTopProducts(limit int) ([]models.TopProduct, error) {
-	if limit < 1 || limit > 50 { limit = 10 }
-	rows, err := s.db.Query(`SELECT si.product_id, COALESCE(p.name,'Unknown'), COALESCE(p.sku,''), COALESCE(p.category,''),
-		SUM(si.quantity), SUM(si.line_total)
-		FROM sale_items si LEFT JOIN products p ON si.product_id=p.id
-		JOIN sales s ON si.sale_id=s.id WHERE s.status='completed'
-		GROUP BY si.product_id, p.name, p.sku, p.category ORDER BY SUM(si.line_total) DESC LIMIT $1`, limit)
-	if err != nil { return nil, err }
-	defer rows.Close()
-
-	var products []models.TopProduct
-	for rows.Next() {
-		var tp models.TopProduct
-		rows.Scan(&tp.ProductID, &tp.ProductName, &tp.ProductSKU, &tp.Category, &tp.TotalQtySold, &tp.TotalRevenue)
-		products = append(products, tp)
-	}
-	return products, nil
-}
+// GetTopProducts removed as products module is deleted
 
 func (s *ReportService) GetRevenueReport() (*models.RevenueReport, error) {
 	report := &models.RevenueReport{}

@@ -11,11 +11,10 @@ import (
 
 type SalesController struct {
 	service        *services.SalesService
-	invoiceService *services.InvoiceService
 }
 
-func NewSalesController(s *services.SalesService, inv *services.InvoiceService) *SalesController {
-	return &SalesController{service: s, invoiceService: inv}
+func NewSalesController(s *services.SalesService, inv interface{}) *SalesController {
+	return &SalesController{service: s}
 }
 
 func (sc *SalesController) List(c *gin.Context) {
@@ -106,10 +105,10 @@ func (sc *SalesController) UpdateStatus(c *gin.Context) {
 		return
 	}
 
-	// Auto-generate invoice when sale is completed
-	if req.Status == models.SaleStatusCompleted {
-		go sc.invoiceService.GenerateInvoice(id)
-	}
+	// Removed auto-generate invoice logic
+	// if req.Status == models.SaleStatusCompleted {
+	// 	go sc.invoiceService.GenerateInvoice(id)
+	// }
 
 	c.JSON(http.StatusOK, sale)
 }

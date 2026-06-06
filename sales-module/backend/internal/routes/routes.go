@@ -14,17 +14,13 @@ import (
 func Setup(r *gin.Engine, db *sql.DB) {
 	// Services
 	salesService := services.NewSalesService(db)
-	invoiceService := services.NewInvoiceService(db)
 	reportService := services.NewReportService(db)
-	productService := services.NewProductService(db)
 
 	// Controllers
 	authCtrl := controllers.NewAuthController(db)
 	healthCtrl := controllers.NewHealthController()
-	salesCtrl := controllers.NewSalesController(salesService, invoiceService)
-	invoiceCtrl := controllers.NewInvoiceController(invoiceService)
+	salesCtrl := controllers.NewSalesController(salesService, nil) // passing nil for invoiceService for now
 	reportCtrl := controllers.NewReportController(reportService)
-	productCtrl := controllers.NewProductController(productService)
 
 	api := r.Group("/api")
 	{
@@ -44,23 +40,11 @@ func Setup(r *gin.Engine, db *sql.DB) {
 			protected.PATCH("/sales/:id/status", salesCtrl.UpdateStatus)
 			protected.DELETE("/sales/:id", salesCtrl.Delete)
 
-			// Invoices
-			protected.GET("/invoices", invoiceCtrl.List)
-			protected.GET("/invoices/:id", invoiceCtrl.Get)
-			protected.POST("/invoices/generate/:saleId", invoiceCtrl.Generate)
-			protected.PATCH("/invoices/:id/status", invoiceCtrl.UpdateStatus)
-			protected.DELETE("/invoices/:id", invoiceCtrl.Delete)
-
 			// Reports
 			protected.GET("/reports/dashboard", reportCtrl.Dashboard)
 			protected.GET("/reports/summary", reportCtrl.Summary)
-			protected.GET("/reports/top-products", reportCtrl.TopProducts)
 			protected.GET("/reports/revenue", reportCtrl.Revenue)
 			protected.POST("/reports/export", reportCtrl.Export)
-
-			// Products
-			protected.GET("/products", productCtrl.List)
-			protected.POST("/products", productCtrl.Create)
 		}
 	}
 }

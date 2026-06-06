@@ -30,14 +30,11 @@ type Sale struct {
 
 // SaleItem represents a line item in a sale
 type SaleItem struct {
-	ID          int     `json:"id"`
-	SaleID      int     `json:"sale_id"`
-	ProductID   *int    `json:"product_id"`
-	ProductName string  `json:"product_name,omitempty"`
-	ProductSKU  string  `json:"product_sku,omitempty"`
-	Quantity    int     `json:"quantity"`
-	UnitPrice   float64 `json:"unit_price"`
-	LineTotal   float64 `json:"line_total"`
+	ID        int     `json:"id"`
+	SaleID    int     `json:"sale_id"`
+	Quantity  int     `json:"quantity"`
+	UnitPrice float64 `json:"unit_price"`
+	LineTotal float64 `json:"line_total"`
 }
 
 // CreateSaleRequest is the request body for creating a sale
@@ -50,7 +47,6 @@ type CreateSaleRequest struct {
 
 // CreateSaleItemRequest represents a line item in a create sale request
 type CreateSaleItemRequest struct {
-	ProductID int     `json:"product_id" binding:"required"`
 	Quantity  int     `json:"quantity" binding:"required,min=1"`
 	UnitPrice float64 `json:"unit_price" binding:"required"`
 }

@@ -141,12 +141,10 @@ func (s *SalesService) GetSale(id int) (*models.Sale, error) {
 
 	// Fetch sale items
 	rows, err := s.db.Query(`
-		SELECT si.id, si.sale_id, si.product_id, COALESCE(p.name, ''), COALESCE(p.sku, ''),
-		       si.quantity, si.unit_price, si.line_total
-		FROM sale_items si
-		LEFT JOIN products p ON si.product_id = p.id
-		WHERE si.sale_id = $1
-		ORDER BY si.id
+		SELECT id, sale_id, quantity, unit_price, line_total
+		FROM sale_items
+		WHERE sale_id = $1
+		ORDER BY id
 	`, id)
 	if err != nil {
 		return nil, fmt.Errorf("items query failed: %w", err)
@@ -156,8 +154,7 @@ func (s *SalesService) GetSale(id int) (*models.Sale, error) {
 	for rows.Next() {
 		var item models.SaleItem
 		err := rows.Scan(
-			&item.ID, &item.SaleID, &item.ProductID, &item.ProductName, &item.ProductSKU,
-			&item.Quantity, &item.UnitPrice, &item.LineTotal,
+			&item.ID, &item.SaleID, &item.Quantity, &item.UnitPrice, &item.LineTotal,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("item scan failed: %w", err)
@@ -215,9 +212,9 @@ func (s *SalesService) CreateSale(req models.CreateSaleRequest, userID int) (*mo
 	for _, item := range req.Items {
 		lineTotal := float64(item.Quantity) * item.UnitPrice
 		_, err = tx.Exec(`
-			INSERT INTO sale_items (sale_id, product_id, quantity, unit_price, line_total)
-			VALUES ($1, $2, $3, $4, $5)
-		`, saleID, item.ProductID, item.Quantity, item.UnitPrice, lineTotal)
+			INSERT INTO sale_items (sale_id, quantity, unit_price, line_total)
+			VALUES ($1, $2, $3, $4)
+		`, saleID, item.Quantity, item.UnitPrice, lineTotal)
 		if err != nil {
 			return nil, fmt.Errorf("insert item failed: %w", err)
 		}
@@ -273,9 +270,9 @@ func (s *SalesService) UpdateSale(id int, req models.UpdateSaleRequest) (*models
 			lineTotal := float64(item.Quantity) * item.UnitPrice
 			subtotal += lineTotal
 			_, err = tx.Exec(`
-				INSERT INTO sale_items (sale_id, product_id, quantity, unit_price, line_total)
-				VALUES ($1, $2, $3, $4, $5)
-			`, id, item.ProductID, item.Quantity, item.UnitPrice, lineTotal)
+				INSERT INTO sale_items (sale_id, quantity, unit_price, line_total)
+				VALUES ($1, $2, $3, $4)
+			`, id, item.Quantity, item.UnitPrice, lineTotal)
 			if err != nil {
 				return nil, err
 			}

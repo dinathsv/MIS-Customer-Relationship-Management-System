@@ -1,0 +1,251 @@
+# =============================================================================
+# Master Docker Compose – MIS Enterprise CRM Platform
+# Sales + Complain Management + User Management + Feedback
+# =============================================================================
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # Sales Module (Group 4)
+  # ---------------------------------------------------------------------------
+
+  sales-db:
+    image: postgres:16-alpine
+    container_name: salesdb
+    ports:
+      - "5436:5432"
+    environment:
+      POSTGRES_DB: salesdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    volumes:
+      - ./sales-module/backend/migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - sales_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - crm-network
+
+  sales-backend:
+    build:
+      context: ./sales-module/backend
+    container_name: sales-backend
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: salesdb
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres123
+      DB_NAME: salesdb
+      DB_SSLMODE: disable
+      JWT_SECRET: sales-module-secret-key-2026
+      PORT: 8080
+    depends_on:
+      sales-db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - crm-network
+
+  sales-frontend:
+    build:
+      context: ./sales-module/frontend
+    container_name: sales-frontend
+    ports:
+      - "8086:80"
+    depends_on:
+      - sales-backend
+    restart: unless-stopped
+    networks:
+      - crm-network
+
+  # ---------------------------------------------------------------------------
+  # Complain Management Module
+  # ---------------------------------------------------------------------------
+
+  complain-db:
+    image: postgres:15-alpine
+    container_name: crm_complain_db
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: crm_db
+    volumes:
+      - ./complain-management/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - complain_pgdata:/var/lib/postgresql/data
+    networks:
+      - crm-network
+
+  complain-backend:
+    build:
+      context: ./complain-management/backend
+    container_name: crm_complain_backend
+    ports:
+      - "8081:8080"
+    environment:
+      DATABASE_URL: postgres://user:password@crm_complain_db:5432/crm_db?sslmode=disable
+    depends_on:
+      - complain-db
+    networks:
+      - crm-network
+
+  complain-frontend:
+    build:
+      context: ./complain-management/frontend
+    container_name: crm_complain_frontend
+    ports:
+      - "3001:3000"
+    depends_on:
+      - complain-backend
+    networks:
+      - crm-network
+
+  # ---------------------------------------------------------------------------
+  # User Management Module
+  # ---------------------------------------------------------------------------
+
+  usermgmt-db:
+    image: postgres:16-alpine
+    container_name: usermgmt_db
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: user_db
+    volumes:
+      - "./user management/database/init.sql:/docker-entrypoint-initdb.d/init.sql"
+      - usermgmt_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d user_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - crm-network
+
+  usermgmt-backend:
+    build:
+      context: "./user management/backend"
+      dockerfile: dockerfile
+    container_name: usermgmt_backend
+    ports:
+      - "8082:8080"
+    environment:
+      DB_HOST: usermgmt_db
+      DB_PORT: 5432
+      DB_USER: myuser
+      DB_PASSWORD: mypassword
+      DB_NAME: user_db
+    depends_on:
+      usermgmt-db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - crm-network
+
+  usermgmt-frontend:
+    build:
+      context: "./user management/frontend"
+      dockerfile: dockerfile
+    container_name: usermgmt_frontend
+    ports:
+      - "8083:80"
+    depends_on:
+      - usermgmt-backend
+    restart: unless-stopped
+    networks:
+      - crm-network
+
+  # ---------------------------------------------------------------------------
+  # Feedback Module
+  # ---------------------------------------------------------------------------
+
+  feedback-db:
+    image: postgres:16-alpine
+    container_name: crm_feedback_db
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_USER: crmuser
+      POSTGRES_PASSWORD: crmpassword
+      POSTGRES_DB: crmdb
+    volumes:
+      - ./feedback-module/feedback-module/database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - feedback_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crmuser -d crmdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - crm-network
+
+  feedback-backend:
+    build:
+      context: ./feedback-module/feedback-module/backend
+      dockerfile: Dockerfile
+    container_name: crm_feedback_backend
+    ports:
+      - "8084:8080"
+    environment:
+      DATABASE_URL: "host=crm_feedback_db port=5432 user=crmuser password=crmpassword dbname=crmdb sslmode=disable"
+      GIN_MODE: release
+      PORT: "8080"
+    depends_on:
+      feedback-db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - crm-network
+
+  feedback-frontend:
+    build:
+      context: ./feedback-module/feedback-module/frontend
+      dockerfile: Dockerfile
+    container_name: crm_feedback_frontend
+    ports:
+      - "8085:80"
+    depends_on:
+      - feedback-backend
+    restart: unless-stopped
+    networks:
+      - crm-network
+
+  # ---------------------------------------------------------------------------
+  # Enterprise Portal
+  # ---------------------------------------------------------------------------
+
+  portal:
+    build:
+      context: ./portal
+      dockerfile: Dockerfile
+    container_name: crm_portal
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+    networks:
+      - crm-network
+
+# =============================================================================
+# Networks & Volumes
+# =============================================================================
+
+networks:
+  crm-network:
+    driver: bridge
+
+volumes:
+  sales_pgdata:
+  complain_pgdata:
+  usermgmt_pgdata:
+  feedback_pgdata:

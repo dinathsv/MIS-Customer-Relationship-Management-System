@@ -30,9 +30,7 @@
             <tr>
               <th>Order ID</th>
               <th>Customer</th>
-              <th>Items</th>
-              <th>Subtotal</th>
-              <th>Discount</th>
+              <th>Description</th>
               <th>Total</th>
               <th>Status</th>
               <th>Date</th>
@@ -43,10 +41,7 @@
             <tr v-for="sale in store.sales" :key="sale.id" class="sale-row">
               <td class="text-primary font-medium">{{ sale.order_id }}</td>
               <td>{{ sale.customer_name || 'N/A' }}</td>
-              <td class="text-muted">-</td>
-              <td>Rs. {{ fmt(sale.subtotal) }}</td>
-              <td class="text-warning" v-if="sale.discount_percent > 0">{{ sale.discount_percent }}%</td>
-              <td v-else class="text-muted">-</td>
+              <td class="text-muted">{{ sale.notes || '-' }}</td>
               <td class="text-primary font-semibold">Rs. {{ fmt(sale.total_amount) }}</td>
               <td><StatusBadge :status="sale.status" /></td>
               <td class="text-muted">{{ formatDate(sale.created_at) }}</td>
@@ -59,7 +54,7 @@
               </td>
             </tr>
             <tr v-if="!store.sales.length">
-              <td colspan="9" class="empty-state">
+              <td colspan="7" class="empty-state">
                 <div class="icon"></div>
                 <h3>No sales found</h3>
                 <p>Create your first sale to get started</p>
@@ -83,18 +78,15 @@
         <div class="detail-grid">
           <div><span class="detail-label">Customer</span><span>{{ selectedSale.customer_name || 'N/A' }}</span></div>
           <div><span class="detail-label">Status</span><StatusBadge :status="selectedSale.status" /></div>
-          <div><span class="detail-label">Subtotal</span><span>Rs. {{ fmt(selectedSale.subtotal) }}</span></div>
-          <div><span class="detail-label">Discount</span><span>{{ selectedSale.discount_percent }}% (Rs. {{ fmt(selectedSale.discount_amount) }})</span></div>
           <div><span class="detail-label">Total</span><span style="font-weight:700;color:var(--color-primary-light)">Rs. {{ fmt(selectedSale.total_amount) }}</span></div>
           <div><span class="detail-label">Notes</span><span>{{ selectedSale.notes || '-' }}</span></div>
         </div>
-        <h4 style="margin: 20px 0 12px; color: var(--text-primary)">Items</h4>
-        <table class="data-table">
-          <thead><tr><th>Product</th><th>SKU</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
+        <h4 style="margin: 20px 0 12px; color: var(--text-primary)" v-if="selectedSale.items && selectedSale.items.length">Items</h4>
+        <table class="data-table" v-if="selectedSale.items && selectedSale.items.length">
+          <thead><tr><th>Description</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
           <tbody>
             <tr v-for="item in selectedSale.items" :key="item.id">
-              <td>{{ item.product_name }}</td>
-              <td class="text-muted">{{ item.product_sku }}</td>
+              <td>Custom Item</td>
               <td>{{ item.quantity }}</td>
               <td>Rs. {{ fmt(item.unit_price) }}</td>
               <td style="font-weight:600">Rs. {{ fmt(item.line_total) }}</td>
@@ -105,36 +97,30 @@
     </Modal>
 
     <!-- Create Sale Modal -->
-    <Modal v-if="showCreateModal" title="Create New Sale" @close="showCreateModal = false" maxWidth="700px">
+    <Modal v-if="showCreateModal" title="Create New Sale" @close="showCreateModal = false" maxWidth="600px">
       <form @submit.prevent="createSale">
         <div class="form-group">
-          <label class="form-label">Customer</label>
+          <label class="form-label">Customer (from User Management)</label>
           <select v-model="newSale.customer_id" class="form-control" required>
             <option value="">Select Customer</option>
-            <option v-for="c in customers" :key="c.id" :value="c.id">{{ c.name }}</option>
+            <option v-for="u in crmUsers" :key="u.user_id" :value="u.user_id">{{ u.full_name }} ({{ u.email }})</option>
           </select>
         </div>
+
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <input v-model="newSale.notes" type="text" class="form-control" placeholder="Sale description" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Amount (Rs.)</label>
+          <input v-model.number="newSale.amount" type="number" min="1" step="0.01" class="form-control" placeholder="Total amount" required />
+        </div>
+
         <div class="form-group">
           <label class="form-label">Discount (%)</label>
           <input v-model.number="newSale.discount_percent" type="number" min="0" max="50" step="0.5" class="form-control" />
         </div>
-        <div class="form-group">
-          <label class="form-label">Notes</label>
-          <input v-model="newSale.notes" type="text" class="form-control" placeholder="Optional notes" />
-        </div>
-
-        <h4 style="margin: 16px 0 12px; color: var(--text-primary)">Items</h4>
-        <div v-for="(item, i) in newSale.items" :key="i" class="item-row">
-          <select v-model="item.product_id" class="form-control" required @change="setPrice(i)">
-            <option value="">Product</option>
-            <option v-for="p in products" :key="p.id" :value="p.id">{{ p.name }} (Rs. {{ fmt(p.price) }})</option>
-          </select>
-          <input v-model.number="item.quantity" type="number" min="1" class="form-control" placeholder="Qty" style="width:80px" required />
-          <input v-model.number="item.unit_price" type="number" min="0" step="0.01" class="form-control" placeholder="Price" style="width:130px" required />
-          <button type="button" class="btn btn-danger btn-sm" @click="removeItem(i)" v-if="newSale.items.length > 1">X</button>
-        </div>
-        <button type="button" class="btn btn-ghost btn-sm mt-1" @click="addItem">Add Item</button>
-
       </form>
 
       <template #footer>
@@ -151,6 +137,7 @@ import StatusBadge from '../components/common/StatusBadge.vue'
 import LoadingSpinner from '../components/common/LoadingSpinner.vue'
 import Modal from '../components/common/Modal.vue'
 import api from '../services/api'
+import { userApi } from '../services/api'
 
 export default {
   name: 'SalesView',
@@ -161,9 +148,8 @@ export default {
       selectedSale: null,
       showCreateModal: false,
       creating: false,
-      customers: [],
-      products: [],
-      newSale: { customer_id: '', discount_percent: 0, notes: '', items: [{ product_id: '', quantity: 1, unit_price: 0 }] }
+      crmUsers: [],
+      newSale: { customer_id: '', discount_percent: 0, notes: '', amount: 0 }
     }
   },
   computed: {
@@ -199,15 +185,9 @@ export default {
         this.store.fetchSales(this.store.pagination.page)
       }
     },
-    addItem() { this.newSale.items.push({ product_id: '', quantity: 1, unit_price: 0 }) },
-    removeItem(i) { this.newSale.items.splice(i, 1) },
-    setPrice(i) {
-      const p = this.products.find(p => p.id === this.newSale.items[i].product_id)
-      if (p) this.newSale.items[i].unit_price = p.price
-    },
     async createSale() {
       if (!this.newSale.customer_id) return alert('Please select a customer')
-      if (this.newSale.items.some(i => !i.product_id || i.quantity < 1)) return alert('Please select products and quantities')
+      if (!this.newSale.amount || this.newSale.amount <= 0) return alert('Please enter a valid amount')
       
       this.creating = true
       try {
@@ -215,15 +195,14 @@ export default {
           customer_id: Number(this.newSale.customer_id), 
           discount_percent: Number(this.newSale.discount_percent || 0),
           notes: this.newSale.notes,
-          items: this.newSale.items.map(i => ({ 
-            product_id: Number(i.product_id), 
-            quantity: Number(i.quantity), 
-            unit_price: Number(i.unit_price) 
-          })) 
+          items: [{ 
+            quantity: 1, 
+            unit_price: Number(this.newSale.amount) 
+          }] 
         }
         await this.store.createSale(payload)
         this.showCreateModal = false
-        this.newSale = { customer_id: '', discount_percent: 0, notes: '', items: [{ product_id: '', quantity: 1, unit_price: 0 }] }
+        this.newSale = { customer_id: '', discount_percent: 0, notes: '', amount: 0 }
         this.store.fetchSales(1)
       } catch (err) {
         alert(err.response?.data?.error || 'Failed to create sale')
@@ -231,24 +210,20 @@ export default {
     },
     async openCreateModal() {
       this.showCreateModal = true
-      await this.loadMasterData()
+      await this.loadCrmUsers()
     },
-    async loadMasterData() {
+    async loadCrmUsers() {
       try {
-        const [custRes, prodRes] = await Promise.all([
-          api.get('/customers'),
-          api.get('/products')
-        ])
-        this.customers = custRes.data || []
-        this.products = prodRes.data || []
+        const res = await userApi.get('/users/public')
+        this.crmUsers = res.data || []
       } catch (e) { 
-        console.error('Failed to load master data', e)
+        console.error('Failed to load users from User Management', e)
       }
     }
   },
   async mounted() {
     this.store.fetchSales(1)
-    this.loadMasterData()
+    this.loadCrmUsers()
   }
 }
 </script>
@@ -270,13 +245,4 @@ export default {
   letter-spacing: 0.05em;
   margin-bottom: 4px;
 }
-
-.item-row {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-  align-items: center;
-}
-
-.item-row .form-control { flex: 1; }
 </style>

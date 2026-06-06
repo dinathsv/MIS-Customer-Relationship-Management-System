@@ -5,7 +5,6 @@ export const useReportsStore = defineStore('reports', {
   state: () => ({
     dashboard: null,
     summary: [],
-    topProducts: [],
     revenue: null,
     loading: false
   }),
@@ -20,10 +19,6 @@ export const useReportsStore = defineStore('reports', {
     async fetchSummary(period = 'monthly') {
       const { data } = await api.get('/reports/summary', { params: { period } })
       this.summary = data || []
-    },
-    async fetchTopProducts(limit = 10) {
-      const { data } = await api.get('/reports/top-products', { params: { limit } })
-      this.topProducts = data || []
     },
     async fetchRevenue() {
       const { data } = await api.get('/reports/revenue')

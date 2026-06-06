@@ -4,8 +4,6 @@ const routes = [
   { path: '/login', name: 'Login', component: () => import('../views/LoginView.vue'), meta: { public: true } },
   { path: '/', name: 'Dashboard', component: () => import('../views/DashboardView.vue') },
   { path: '/sales', name: 'Sales', component: () => import('../views/SalesView.vue') },
-  { path: '/invoices', name: 'Invoices', component: () => import('../views/InvoicesView.vue') },
-  { path: '/products', name: 'Products', component: () => import('../views/ProductsView.vue') },
   { path: '/reports', name: 'Reports', component: () => import('../views/ReportsView.vue') },
 ]
 

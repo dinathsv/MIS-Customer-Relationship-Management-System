@@ -6,6 +6,13 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' }
 })
 
+// User Management API (cross-module)
+const userApi = axios.create({
+  baseURL: 'http://localhost:8082/api/v1',
+  timeout: 10000,
+  headers: { 'Content-Type': 'application/json' }
+})
+
 // Add JWT token to requests
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('token')
@@ -26,4 +33,6 @@ api.interceptors.response.use(
   }
 )
 
+export { userApi }
 export default api
+

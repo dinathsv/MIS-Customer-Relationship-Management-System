@@ -85,28 +85,6 @@
           </tbody>
         </table>
       </div>
-
-      <!-- Top Products -->
-      <div class="card mt-3">
-        <h3 class="card-title">Top Selling Products</h3>
-        <table class="data-table">
-          <thead>
-            <tr><th>#</th><th>Product</th><th>SKU</th><th>Category</th><th>Qty Sold</th><th>Revenue</th></tr>
-          </thead>
-          <tbody>
-            <tr v-for="(p, i) in topProducts" :key="p.product_id">
-              <td>
-                <span class="rank-badge" :class="`rank-${i+1}`">{{ i + 1 }}</span>
-              </td>
-              <td class="text-primary text-medium">{{ p.product_name }}</td>
-              <td class="text-muted">{{ p.product_sku }}</td>
-              <td>{{ p.category }}</td>
-              <td>{{ p.total_qty_sold }}</td>
-              <td class="text-success font-semibold">Rs. {{ fmt(p.total_revenue) }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
     </template>
   </div>
 </template>
@@ -126,7 +104,6 @@ export default {
   computed: {
     store() { return useReportsStore() },
     summary() { return this.store.summary },
-    topProducts() { return this.store.topProducts },
     revenue() { return this.store.revenue }
   },
   methods: {
@@ -205,7 +182,6 @@ export default {
     try {
       await Promise.all([
         this.store.fetchSummary(this.period),
-        this.store.fetchTopProducts(10),
         this.store.fetchRevenue()
       ])
       this.$nextTick(() => this.renderCharts())

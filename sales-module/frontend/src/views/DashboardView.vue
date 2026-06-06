@@ -58,33 +58,6 @@
           </table>
         </div>
       </div>
-
-      <!-- Top Products -->
-      <div class="card mt-3">
-        <h3 class="card-title">Top Selling Products</h3>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Product</th>
-              <th>SKU</th>
-              <th>Category</th>
-              <th>Qty Sold</th>
-              <th>Revenue</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(p, i) in topProducts" :key="p.product_id">
-              <td>{{ i + 1 }}</td>
-              <td class="text-primary text-medium">{{ p.product_name }}</td>
-              <td class="text-muted">{{ p.product_sku }}</td>
-              <td>{{ p.category }}</td>
-              <td>{{ p.total_qty_sold }}</td>
-              <td class="text-success font-semibold">Rs. {{ formatNumber(p.total_revenue) }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
     </template>
   </div>
 </template>
@@ -182,26 +155,36 @@ export default {
           }
         }
       })
+    },
+    async loadData(userId) {
+      this.loading = true
+      const reports = useReportsStore()
+      const sales = useSalesStore()
+      try {
+        sales.filters.customer_id = userId
+        reports.filters = { customer_id: userId }
+
+        await Promise.all([
+          reports.fetchDashboard(),
+          reports.fetchRevenue(),
+          sales.fetchSales(1)
+        ])
+        this.recentSales = (sales.sales || []).slice(0, 8)
+        this.$nextTick(() => this.renderChart())
+      } finally {
+        this.loading = false
+      }
+    },
+    onUserSwitched(e) {
+      this.loadData(e.detail.userId)
     }
   },
-  async mounted() {
-    const reports = useReportsStore()
-    const sales = useSalesStore()
-    try {
-      await Promise.all([
-        reports.fetchDashboard(),
-        reports.fetchRevenue(),
-        reports.fetchTopProducts(5),
-        sales.fetchSales(1)
-      ])
-      this.recentSales = (sales.sales || []).slice(0, 8)
-      this.topProducts = reports.topProducts || []
-      this.$nextTick(() => this.renderChart())
-    } finally {
-      this.loading = false
-    }
+  mounted() {
+    window.addEventListener('user-switched', this.onUserSwitched)
+    this.loadData(this.$root.$data?.selectedUserId || '')
   },
   beforeUnmount() {
+    window.removeEventListener('user-switched', this.onUserSwitched)
     if (this.chartInstance) this.chartInstance.destroy()
   }
 }

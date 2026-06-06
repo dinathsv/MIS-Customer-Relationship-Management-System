@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // Resolve API base — works both in Docker (Nginx proxy) and local dev (Vite proxy)
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
+const BASE_URL = 'http://localhost:8080'
 
 const api = axios.create({
   baseURL: BASE_URL,

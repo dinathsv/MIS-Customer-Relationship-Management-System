@@ -240,7 +240,7 @@ function resetForm() {
 
 async function fetchUsers() {
   try {
-    const res = await fetch('http://localhost:8082/api/v1/users/public')
+    const res = await fetch('http://localhost:8080/api/v1/users/public')
     users.value = await res.json()
   } catch (err) {
     console.error("Error fetching users:", err)

@@ -1,9 +1,19 @@
 <template>
   <div class="dashboard-layout">
     <div class="main-content">
-      <header>
-        <h2>{{ isAdmin ? 'Control Panel Dashboard' : 'User Profile' }}</h2>
-        <div class="user-badge">Welcome, {{ current_user }}! (Role: {{ current_role_name }})</div>
+      <header style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h2>{{ isAdmin ? 'Control Panel Dashboard' : 'User Profile' }}</h2>
+          <div class="user-badge">Welcome, {{ current_user }}! (Role: {{ current_role_name }})</div>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button @click="goToPortal" class="btn-secondary" style="display: flex; align-items: center; gap: 5px;">
+            🏠 Portal
+          </button>
+          <button @click="logout" class="btn-delete" style="display: flex; align-items: center; gap: 5px;">
+            Logout
+          </button>
+        </div>
       </header>
 
       <div class="content-body" v-if="isAdmin">
@@ -156,6 +166,18 @@ const profileData = ref({ full_name: '', username: '', email: '' })
 
 const showPasswordModal = ref(false)
 const passwordData = ref({ old_password: '', new_password: '' })
+
+const goToPortal = () => {
+  window.location.href = '/'
+}
+
+const logout = () => {
+  localStorage.removeItem('crm_token')
+  localStorage.removeItem('crm_user')
+  localStorage.removeItem('crm_username')
+  localStorage.removeItem('crm_role')
+  window.location.href = '/'
+}
 
 const fetchUsers = async () => {
   try {

@@ -15,7 +15,7 @@ const userApi = axios.create({
 
 // Add JWT token to requests
 api.interceptors.request.use(config => {
-  const token = localStorage.getItem('token')
+  const token = localStorage.getItem('crm_token')
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })
@@ -25,9 +25,9 @@ api.interceptors.response.use(
   response => response,
   error => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      window.location.href = '/sales/login'
+      localStorage.removeItem('crm_token')
+      localStorage.removeItem('crm_user')
+      window.location.href = '/'
     }
     return Promise.reject(error)
   }

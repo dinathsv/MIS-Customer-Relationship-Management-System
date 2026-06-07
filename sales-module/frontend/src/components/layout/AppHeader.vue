@@ -4,6 +4,9 @@
       <h2>{{ $route.name }}</h2>
     </div>
     <div class="header-right">
+      <button @click="goToPortal" class="header-portal-btn" title="Back to Portal">
+        🏠 Portal
+      </button>
       <div class="header-search">
         <span class="search-icon">🔍</span>
         <input type="text" placeholder="Search..." class="search-input" />
@@ -31,6 +34,9 @@ export default {
     userInitial() { return (this.user?.username || 'A')[0].toUpperCase() }
   },
   methods: {
+    goToPortal() {
+      window.location.href = '/'
+    },
     logout() {
       useAuthStore().logout()
       this.$router.push('/login')
@@ -63,6 +69,24 @@ export default {
   display: flex;
   align-items: center;
   gap: 16px;
+}
+
+.header-portal-btn {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.header-portal-btn:hover {
+  background: var(--bg-glass-hover);
 }
 
 .header-search {

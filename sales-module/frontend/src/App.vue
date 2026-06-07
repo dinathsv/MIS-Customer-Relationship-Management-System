@@ -1,6 +1,5 @@
 <template>
-  <LoginView v-if="$route.name === 'Login'" />
-  <AppLayout v-else>
+  <AppLayout>
     <router-view v-slot="{ Component }">
       <transition name="page" mode="out-in">
         <component :is="Component" />
@@ -11,10 +10,9 @@
 
 <script>
 import AppLayout from './components/layout/AppLayout.vue'
-import LoginView from './views/LoginView.vue'
 
 export default {
   name: 'App',
-  components: { AppLayout, LoginView }
+  components: { AppLayout }
 }
 </script>

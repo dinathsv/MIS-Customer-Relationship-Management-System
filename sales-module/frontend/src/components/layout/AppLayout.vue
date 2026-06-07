@@ -1,11 +1,13 @@
 <template>
-  <div class="app-layout">
-    <AppSidebar />
-    <div class="main-area">
-      <AppHeader />
-      <main class="main-content">
-        <slot />
-      </main>
+  <div class="app-layout-wrapper">
+    <AppHeader />
+    <div class="app-layout">
+      <AppSidebar />
+      <div class="main-area">
+        <main class="main-content">
+          <slot />
+        </main>
+      </div>
     </div>
   </div>
 </template>
@@ -21,9 +23,16 @@ export default {
 </script>
 
 <style scoped>
+.app-layout-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .app-layout {
   display: flex;
-  min-height: 100vh;
+  flex: 1;
+  padding-top: 70px; /* Space for the fixed full-width header */
 }
 
 .main-area {
@@ -32,6 +41,7 @@ export default {
   transition: margin-left var(--transition-slow);
   display: flex;
   flex-direction: column;
+  min-height: calc(100vh - 70px);
 }
 
 .main-content {

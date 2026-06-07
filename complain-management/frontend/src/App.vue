@@ -7,33 +7,33 @@
     </div>
 
     <!-- Main App View -->
+    <header v-if="currentUser.token" class="app-header-unified">
+      <div class="unified-header-left">
+        <div class="unified-logo">◈</div>
+        <div class="unified-brand">
+          <p class="unified-subtitle">CRM ENTERPRISE</p>
+          <p class="unified-title">Complain Management</p>
+        </div>
+      </div>
+      
+      <div class="unified-header-center">
+      </div>
+
+      <div class="unified-header-right">
+        <button @click="goToPortal" class="unified-btn-portal" title="Back to Portal">
+          🏠 Portal
+        </button>
+        <div class="unified-user-info">
+          <span class="unified-role">{{ currentUser.role || 'USER' }}</span>
+          <span class="unified-username">{{ currentUser.username || 'Agent' }}</span>
+        </div>
+        <button @click="logout" class="unified-btn-logout">
+          Logout
+        </button>
+      </div>
+    </header>
+
     <main v-if="currentUser.token" class="main-content">
-      <header class="app-header-unified">
-        <div class="unified-header-left">
-          <div class="unified-logo">◈</div>
-          <div class="unified-brand">
-            <p class="unified-subtitle">CRM ENTERPRISE</p>
-            <p class="unified-title">Complain Management</p>
-          </div>
-        </div>
-        
-        <div class="unified-header-center">
-        </div>
-
-        <div class="unified-header-right">
-          <button @click="goToPortal" class="unified-btn-portal" title="Back to Portal">
-            🏠 Portal
-          </button>
-          <div class="unified-user-info">
-            <span class="unified-role">{{ currentUser.role || 'USER' }}</span>
-            <span class="unified-username">{{ currentUser.username || 'Agent' }}</span>
-          </div>
-          <button @click="logout" class="unified-btn-logout">
-            Logout
-          </button>
-        </div>
-      </header>
-
       <p class="subtitle">Streamline your customer support experience</p>
 
       <div class="dashboard-grid" :style="currentUser.role === 'admin' ? 'grid-template-columns: 1fr;' : ''">
@@ -473,9 +473,9 @@ body {
 .app-container {
   position: relative;
   min-height: 100vh;
-  padding: 2rem;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* Dynamic Background Elements */
@@ -537,6 +537,7 @@ body {
   width: 100%;
   max-width: 1200px;
   z-index: 1;
+  padding: 2rem;
 }
 
 .app-header {
@@ -1196,6 +1197,8 @@ td {
 
 /* Unified Header CSS */
 .app-header-unified {
+  width: 100%;
+  box-sizing: border-box;
   height: 70px;
   background: rgba(15, 23, 42, 0.8);
   backdrop-filter: blur(16px);

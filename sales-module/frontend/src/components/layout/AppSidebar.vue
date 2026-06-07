@@ -47,15 +47,15 @@ export default {
 <style scoped>
 .sidebar {
   position: fixed;
-  top: 0;
+  top: 70px;
   left: 0;
   width: var(--sidebar-width);
-  height: 100vh;
+  height: calc(100vh - 70px);
   background: var(--bg-card);
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  z-index: 100;
+  z-index: 40;
   transition: width var(--transition-slow);
 }
 

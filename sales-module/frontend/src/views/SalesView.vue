@@ -48,6 +48,7 @@
               <td>
                 <div class="action-btns">
                   <button class="btn btn-ghost btn-sm" @click="viewSale(sale.id)" title="View">View</button>
+                  <button v-if="sale.status === 'pending'" class="btn btn-primary btn-sm" @click="openEditModal(sale)" title="Edit">Edit</button>
                   <button v-if="sale.status === 'pending'" class="btn btn-success btn-sm" @click="completeSale(sale.id)" title="Complete">Complete</button>
                   <button v-if="sale.status === 'pending'" class="btn btn-danger btn-sm" @click="cancelSale(sale.id)" title="Cancel">Cancel</button>
                 </div>
@@ -128,6 +129,31 @@
         <button class="btn btn-primary" @click="createSale" :disabled="creating">{{ creating ? 'Creating...' : 'Create Sale' }}</button>
       </template>
     </Modal>
+
+    <!-- Edit Modal -->
+    <Modal v-if="showEditModal" title="Edit Sale" @close="showEditModal = false">
+      <form @submit.prevent="updateSale" class="form-stack">
+        <div class="form-group">
+          <label class="form-label">Customer</label>
+          <select v-model="editSaleData.customer_id" class="form-control" required disabled>
+            <option v-for="u in crmUsers" :key="u.user_id" :value="u.user_id">{{ u.full_name }} ({{ u.email }})</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes/Description</label>
+          <input v-model="editSaleData.notes" type="text" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Discount (%)</label>
+          <input v-model.number="editSaleData.discount_percent" type="number" min="0" max="50" step="0.5" class="form-control" />
+        </div>
+      </form>
+
+      <template #footer>
+        <button class="btn btn-ghost" @click="showEditModal = false">Cancel</button>
+        <button class="btn btn-primary" @click="updateSale" :disabled="updating">{{ updating ? 'Updating...' : 'Save Changes' }}</button>
+      </template>
+    </Modal>
   </div>
 </template>
 
@@ -147,9 +173,12 @@ export default {
       filters: { status: '', date_from: '', date_to: '' },
       selectedSale: null,
       showCreateModal: false,
+      showEditModal: false,
       creating: false,
+      updating: false,
       crmUsers: [],
-      newSale: { customer_id: '', discount_percent: 0, notes: '', amount: 0 }
+      newSale: { customer_id: '', discount_percent: 0, notes: '', amount: 0 },
+      editSaleData: { id: null, customer_id: '', discount_percent: 0, notes: '' }
     }
   },
   computed: {
@@ -211,6 +240,31 @@ export default {
     async openCreateModal() {
       this.showCreateModal = true
       await this.loadCrmUsers()
+    },
+    async openEditModal(sale) {
+      this.editSaleData = {
+        id: sale.id,
+        customer_id: sale.customer_id,
+        discount_percent: sale.discount_percent || 0,
+        notes: sale.notes || ''
+      }
+      this.showEditModal = true
+      await this.loadCrmUsers()
+    },
+    async updateSale() {
+      this.updating = true
+      try {
+        const payload = {
+          customer_id: Number(this.editSaleData.customer_id),
+          discount_percent: Number(this.editSaleData.discount_percent || 0),
+          notes: this.editSaleData.notes
+        }
+        await this.store.updateSale(this.editSaleData.id, payload)
+        this.showEditModal = false
+        this.store.fetchSales(this.store.pagination.page)
+      } catch (err) {
+        alert(err.response?.data?.error || 'Failed to update sale')
+      } finally { this.updating = false }
     },
     async loadCrmUsers() {
       try {

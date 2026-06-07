@@ -89,16 +89,11 @@ func connectDB() *sql.DB {
 type Handler struct{ db *sql.DB }
 
 func normalizeCustomerID(value string) string {
-	raw := strings.ToUpper(strings.TrimSpace(value))
+	raw := strings.TrimSpace(value)
 	if raw == "" {
 		return ""
 	}
-	if strings.HasPrefix(raw, "CRM-") {
-		return raw
-	}
-	raw = strings.TrimPrefix(raw, "CRM")
-	raw = strings.TrimPrefix(raw, "-")
-	return "CRM-" + raw
+	return raw
 }
 
 // POST /api/feedback
@@ -110,8 +105,8 @@ func (h *Handler) SubmitFeedback(c *gin.Context) {
 	}
 
 	req.CustomerID = normalizeCustomerID(req.CustomerID)
-	if req.CustomerID == "" || req.CustomerID == "CRM-" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "customer_id is required"})
+	if req.CustomerID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "customer email is required"})
 		return
 	}
 

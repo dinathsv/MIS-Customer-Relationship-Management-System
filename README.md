@@ -16,16 +16,16 @@ The ecosystem consists of **4 core business modules** and **1 central gateway/po
 
 ```mermaid
 graph TD
-    CP[Central Portal - :3000] --> Sales[Sales Module - :8086]
-    CP --> Complain[Complain Module - :3001]
-    CP --> UserMgmt[User Management - :8083]
-    CP --> Feedback[Feedback Module - :8085]
+    CP["Central Portal - :3000"] --> Sales["Sales Module - :8086"]
+    CP --> Complain["Complain Module - :3001"]
+    CP --> UserMgmt["User Management - :8083"]
+    CP --> Feedback["Feedback Module - :8085"]
     
-    subgraph Microservices Network (crm-network)
-        Sales -.-> SalesAPI[Sales API - :8080] --> SalesDB[(Sales DB - :5436)]
-        Complain -.-> ComplainAPI[Complain API - :8081] --> ComplainDB[(Complain DB - :5433)]
-        UserMgmt -.-> UserAPI[User API - :8082] --> UserDB[(User DB - :5434)]
-        Feedback -.-> FeedbackAPI[Feedback API - :8084] --> FeedbackDB[(Feedback DB - :5435)]
+    subgraph "Microservices Network (crm-network)"
+        Sales -.-> SalesAPI["Sales API - :8080"] --> SalesDB[("Sales DB - :5436")]
+        Complain -.-> ComplainAPI["Complain API - :8081"] --> ComplainDB[("Complain DB - :5433")]
+        UserMgmt -.-> UserAPI["User API - :8082"] --> UserDB[("User DB - :5434")]
+        Feedback -.-> FeedbackAPI["Feedback API - :8084"] --> FeedbackDB[("Feedback DB - :5435")]
     end
 ```
 

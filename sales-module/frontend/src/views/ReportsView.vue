@@ -6,7 +6,7 @@
         <p>Sales performance metrics and insights</p>
       </div>
       <button class="btn btn-primary" @click="exportData" :disabled="exporting">
-        {{ exporting ? 'Exporting...' : 'Export to MIS' }}
+        {{ exporting ? 'Preparing...' : 'Report' }}
       </button>
     </div>
 
@@ -115,10 +115,10 @@ export default {
     async exportData() {
       this.exporting = true
       try {
-        await api.post('/reports/export')
-        alert('Data exported successfully!')
+        // Trigger browser print dialog (allows saving as PDF)
+        window.print()
       } catch (e) {
-        alert('Export failed')
+        alert('Failed to generate report')
       } finally { this.exporting = false }
     },
     renderCharts() {

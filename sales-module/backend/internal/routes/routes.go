@@ -17,7 +17,6 @@ func Setup(r *gin.Engine, db *sql.DB) {
 	reportService := services.NewReportService(db)
 
 	// Controllers
-	authCtrl := controllers.NewAuthController(db)
 	healthCtrl := controllers.NewHealthController()
 	salesCtrl := controllers.NewSalesController(salesService, nil) // passing nil for invoiceService for now
 	reportCtrl := controllers.NewReportController(reportService)
@@ -26,7 +25,6 @@ func Setup(r *gin.Engine, db *sql.DB) {
 	{
 		// Public routes
 		api.GET("/health", healthCtrl.Health)
-		api.POST("/auth/login", authCtrl.Login)
 
 		// Protected routes
 		protected := api.Group("")

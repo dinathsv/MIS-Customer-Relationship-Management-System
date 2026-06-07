@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS customers (
 -- ============================================
 CREATE TABLE IF NOT EXISTS sales (
     id SERIAL PRIMARY KEY,
-    customer_id INTEGER REFERENCES customers(id) ON DELETE SET NULL,
+    customer_id INTEGER,
     order_id VARCHAR(50) UNIQUE,
     status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'completed', 'cancelled')),
     subtotal DECIMAL(12,2) DEFAULT 0.00,

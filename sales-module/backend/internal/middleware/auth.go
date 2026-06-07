@@ -11,14 +11,6 @@ import (
 // JWTSecret is set from config during app initialization
 var JWTSecret string
 
-// Claims represents the JWT token claims
-type Claims struct {
-	UserID   int    `json:"user_id"`
-	Username string `json:"username"`
-	Role     string `json:"role"`
-	jwt.RegisteredClaims
-}
-
 // AuthMiddleware validates JWT tokens on protected routes
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -38,8 +30,8 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		tokenStr := parts[1]
-		claims := &Claims{}
 
+		claims := jwt.MapClaims{}
 		token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
 			return []byte(JWTSecret), nil
 		})
@@ -50,10 +42,25 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		userIDFloat, _ := claims["user_id"].(float64)
+		username, _ := claims["username"].(string)
+		roleIDFloat, _ := claims["role_id"].(float64)
+
+		role := "user"
+		if int(roleIDFloat) == 1 {
+			role = "admin"
+		}
+
+		if role != "admin" {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Unauthorized - Admin access required"})
+			c.Abort()
+			return
+		}
+
 		// Set user info in context for downstream handlers
-		c.Set("userID", claims.UserID)
-		c.Set("username", claims.Username)
-		c.Set("role", claims.Role)
+		c.Set("userID", int(userIDFloat))
+		c.Set("username", username)
+		c.Set("role", role)
 
 		c.Next()
 	}

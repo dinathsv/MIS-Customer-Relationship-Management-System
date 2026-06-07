@@ -57,6 +57,7 @@ func LoginUser(c *gin.Context) {
 	claims := jwt.MapClaims{
 		"user_id":  userID,
 		"username": username,
+		"email":    input.Email,
 		"role_id":  roleID,
 		"exp":      expirationTime.Unix(),
 	}
@@ -74,6 +75,7 @@ func LoginUser(c *gin.Context) {
 		"user_id":  userID,
 		"username": username,
 		"role_id":  roleID,
+		"email":    input.Email,
 	})
 }
 

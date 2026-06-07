@@ -134,17 +134,7 @@
             </div>
             <!-- Side Info Panel -->
             <div class="space-y-4">
-              <div class="glass-card p-5">
-                <p class="section-label mb-3">API Integration</p>
-                <p class="text-xs mb-3" style="color: var(--text-secondary)">
-                  Feedback is linked to the CRM via <span class="font-mono text-cyan-400">customer_id</span>.
-                  Query all feedback for a customer:
-                </p>
-                <div class="rounded-lg p-3 text-xs font-mono overflow-x-auto"
-                     style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); color: #67e8f9;">
-                  GET /api/feedback/customer/{'{'}id{'}'}
-                </div>
-              </div>
+
 
               <div class="glass-card p-5">
                 <p class="section-label mb-3">Categories</p>
@@ -187,8 +177,7 @@
       <footer class="text-center py-6 px-4"
               style="border-top: 1px solid rgba(255,255,255,0.06); color: var(--text-secondary)">
         <p class="text-xs">
-          CRM Feedback Module &nbsp;·&nbsp; Vue 3 + Go + PostgreSQL &nbsp;·&nbsp;
-          <span class="gradient-text font-medium">Glassmorphism UI</span>
+          CRM Feedback Module
         </p>
       </footer>
     </div>

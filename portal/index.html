@@ -115,40 +115,263 @@
         .card:nth-child(3):hover { border-color: #8b5cf6; box-shadow: 0 20px 40px rgba(139, 92, 246, 0.15); }
         .card:nth-child(4):hover { border-color: #10b981; box-shadow: 0 20px 40px rgba(16, 185, 129, 0.15); }
 
+        /* Login Form Styles */
+        #login-container {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 400px;
+            display: none; /* hidden by default */
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #fff;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 0.875rem;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.9;
+        }
+
+        #error-msg {
+            color: #ef4444;
+            margin-bottom: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        .user-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        #logout-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #logout-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        #portal-content {
+            display: none; /* hidden by default */
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
     </style>
 </head>
 <body>
+
+    <div class="user-info" id="user-info" style="display: none;">
+        <span id="welcome-text"></span>
+        <button id="logout-btn">Logout</button>
+    </div>
 
     <div class="header">
         <h1>CRM Enterprise Portal</h1>
         <p>Welcome to the central command center. Select a module below to manage your enterprise operations.</p>
     </div>
 
-    <div class="grid">
-        <a href="/sales/" class="card">
-            <div class="icon">💼</div>
-            <h2>Sales Management</h2>
-            <p>Manage product inventories, track invoices, and analyze sales performance in real-time.</p>
-        </a>
-
-        <a href="/complain/" class="card">
-            <div class="icon">⚠️</div>
-            <h2>Complain Management</h2>
-            <p>Resolve customer disputes, track issue tickets, and monitor agent performance.</p>
-        </a>
-
-        <a href="/usermgmt/dashboard" class="card">
-            <div class="icon">👥</div>
-            <h2>User Management</h2>
-            <p>Administer staff accounts, manage roles, and monitor active sessions across the platform.</p>
-        </a>
-
-        <a href="/feedback/" class="card">
-            <div class="icon">⭐</div>
-            <h2>Customer Feedback</h2>
-            <p>Review customer ratings, track product quality sentiments, and view feedback analytics.</p>
-        </a>
+    <div id="login-container">
+        <h2 style="text-align: center; margin-bottom: 2rem; color: #f8fafc;">Login</h2>
+        <div id="error-msg"></div>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" required placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required placeholder="Enter your password">
+            </div>
+            <button type="submit" class="btn-submit">Sign In</button>
+        </form>
+        <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: #94a3b8;">
+            Don't have an account? <a href="/usermgmt/register" style="color: #3b82f6; text-decoration: none;">Create Account</a>
+        </p>
     </div>
 
+    <div id="portal-content">
+        <div class="grid" id="modules-grid">
+            <a href="/sales/" class="card" id="card-sales">
+                <div class="icon">💼</div>
+                <h2>Sales Management</h2>
+                <p>Manage product inventories, track invoices, and analyze sales performance in real-time.</p>
+            </a>
+
+            <a href="/complain/" class="card" id="card-complain">
+                <div class="icon">⚠️</div>
+                <h2>Complain Management</h2>
+                <p>Resolve customer disputes, track issue tickets, and monitor agent performance.</p>
+            </a>
+
+            <a href="/usermgmt/dashboard" class="card" id="card-usermgmt">
+                <div class="icon">👥</div>
+                <h2>User Management</h2>
+                <p>Administer staff accounts, manage roles, and monitor active sessions across the platform.</p>
+            </a>
+
+            <a href="/feedback/" class="card" id="card-feedback">
+                <div class="icon">⭐</div>
+                <h2>Customer Feedback</h2>
+                <p>Review customer ratings, track product quality sentiments, and view feedback analytics.</p>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const loginContainer = document.getElementById('login-container');
+        const portalContent = document.getElementById('portal-content');
+        const loginForm = document.getElementById('login-form');
+        const errorMsg = document.getElementById('error-msg');
+        const userInfo = document.getElementById('user-info');
+        const welcomeText = document.getElementById('welcome-text');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        // Check if user is logged in
+        function checkAuth() {
+            const token = localStorage.getItem('crm_token');
+            if (token) {
+                try {
+                    // Simple JWT decoding
+                    const base64Url = token.split('.')[1];
+                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+
+                    const claims = JSON.parse(jsonPayload);
+                    showPortal(claims);
+                } catch (e) {
+                    console.error('Invalid token', e);
+                    showLogin();
+                }
+            } else {
+                showLogin();
+            }
+        }
+
+        function showLogin() {
+            loginContainer.style.display = 'block';
+            portalContent.style.display = 'none';
+            userInfo.style.display = 'none';
+            localStorage.removeItem('crm_token');
+            localStorage.removeItem('crm_user');
+        }
+
+        function showPortal(claims) {
+            loginContainer.style.display = 'none';
+            portalContent.style.display = 'flex';
+            userInfo.style.display = 'flex';
+            welcomeText.textContent = `Welcome, ${claims.username || 'User'}`;
+
+            // Role-based access control
+            // Assuming role_id == 1 is admin.
+            const headerDesc = document.querySelector('.header p');
+            if (claims.role_id !== 1) {
+                headerDesc.textContent = "Welcome to the User Portal. Select an available module below.";
+                document.getElementById('card-sales').style.display = 'none';
+                document.getElementById('card-usermgmt').style.display = 'none'; // Optional: maybe only admin manages users
+            } else {
+                headerDesc.textContent = "Welcome to the Admin Command Center. Select a module below to manage your enterprise operations.";
+                document.getElementById('card-sales').style.display = 'flex';
+                document.getElementById('card-usermgmt').style.display = 'flex';
+            }
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const res = await fetch('http://localhost:8080/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.token) {
+                    localStorage.setItem('crm_token', data.token);
+                    localStorage.setItem('crm_user', JSON.stringify({
+                    user_id: data.user_id,
+                    username: data.username,
+                    email: data.email,
+                    role_id: data.role_id,
+                    role: data.role_id === 1 ? 'admin' : 'user'
+                }));
+                    errorMsg.style.display = 'none';
+                    checkAuth();
+                } else {
+                    errorMsg.textContent = data.error || 'Login failed';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (err) {
+                errorMsg.textContent = 'Network error occurred';
+                errorMsg.style.display = 'block';
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            showLogin();
+        });
+
+        // Initialize
+        checkAuth();
+    </script>
 </body>
 </html>

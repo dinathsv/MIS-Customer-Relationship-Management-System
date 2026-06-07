@@ -40,7 +40,7 @@ services:
       DB_PASSWORD: postgres123
       DB_NAME: salesdb
       DB_SSLMODE: disable
-      JWT_SECRET: sales-module-secret-key-2026
+      JWT_SECRET: CRM_SUPER_SECRET_KEY_2026
       PORT: 8080
     depends_on:
       sales-db:

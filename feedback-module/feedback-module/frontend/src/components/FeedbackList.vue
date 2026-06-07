@@ -41,7 +41,7 @@
 
     <!-- Feedback List -->
     <div v-else class="space-y-4">
-      <div v-for="item in feedbacks" :key="item.id" class="glass-card-static p-6 animate-fade-up">
+      <div v-for="item in feedbacks" :key="item.feedback_id" class="glass-card-static p-6 animate-fade-up">
         <div class="flex flex-col md:flex-row md:items-start gap-4 justify-between mb-4">
           <div>
             <div class="flex items-center gap-3 mb-2">
@@ -71,7 +71,7 @@
         
         <div class="p-4 rounded-lg" style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05)">
           <p class="text-sm leading-relaxed" style="color: var(--text-secondary)">
-            {{ item.comment || 'No written comment provided.' }}
+            {{ item.comments || 'No written comment provided.' }}
           </p>
         </div>
       </div>
@@ -110,9 +110,10 @@ async function loadFeedbacks() {
   loading.value = true
   error.value = ''
   try {
-    const data = await listFeedback()
+    const response = await listFeedback()
+    const rawData = response?.data || []
     // Sort by created_at descending
-    feedbacks.value = data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    feedbacks.value = [...rawData].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
   } catch (err) {
     error.value = err?.response?.data?.error || err.message || 'Unknown error'
   } finally {

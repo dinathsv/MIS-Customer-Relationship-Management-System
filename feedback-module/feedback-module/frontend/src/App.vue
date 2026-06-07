@@ -55,15 +55,6 @@
         </div>
 
         <div class="unified-header-right">
-          <!-- API Status -->
-          <div class="flex items-center gap-2 hidden md:flex" style="margin-right: 10px;">
-            <span class="w-2 h-2 rounded-full animate-pulse"
-                  :style="{ background: apiStatus === 'healthy' ? '#10b981' : apiStatus === 'checking' ? '#f59e0b' : '#ef4444' }">
-            </span>
-            <span class="text-xs" style="color: var(--text-secondary)">
-              {{ apiStatus === 'healthy' ? 'API Online' : apiStatus === 'checking' ? 'Connecting...' : 'API Offline' }}
-            </span>
-          </div>
 
           <button @click="goToPortal" class="unified-btn-portal" title="Back to Portal">
             🏠 Portal

@@ -36,6 +36,13 @@
             </span>
             <span class="username">{{ currentUser.username }}</span>
           </div>
+          <button @click="goToPortal" class="portal-btn" title="Back to Portal" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-size: 0.85rem; font-weight: 500; display: flex; align-items: center; gap: 6px; margin-right: 12px;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            Portal
+          </button>
           <button @click="logout" class="logout-btn" title="Logout">
             <svg
               viewBox="0 0 24 24"
@@ -53,8 +60,8 @@
 
       <p class="subtitle">Streamline your customer support experience</p>
 
-      <div class="dashboard-grid">
-        <section class="glass-panel form-section">
+      <div class="dashboard-grid" :style="currentUser.role === 'admin' ? 'grid-template-columns: 1fr;' : ''">
+        <section class="glass-panel form-section" v-if="currentUser.role !== 'admin'">
           <div class="section-header">
             <h3>Log New Complaint</h3>
             <span class="icon">
@@ -76,13 +83,13 @@
 
           <form @submit.prevent="submitComplaint" class="complaint-form">
             <div class="form-group">
-              <label>Customer ID (Shared Link)</label>
+              <label>Email Address</label>
               <div class="input-wrapper">
                 <input
-                  type="number"
-                  v-model.number="form.customer_id"
+                  type="email"
+                  v-model="form.customer_id"
                   required
-                  placeholder="e.g. 101"
+                  placeholder="e.g. user@example.com"
                 />
               </div>
             </div>
@@ -143,10 +150,10 @@
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Customer ID</th>
+                  <th>Email Address</th>
                   <th>Title</th>
                   <th>Status</th>
-                  <th v-if="currentUser.role === 'admin'">Actions</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -167,8 +174,9 @@
                       {{ item.status }}
                     </span>
                   </td>
-                  <td v-if="currentUser.role === 'admin'" class="actions-cell">
+                  <td class="actions-cell">
                     <button
+                      v-if="currentUser.role === 'admin'"
                       class="action-btn edit-btn"
                       @click="openStatusModal(item)"
                       title="Change Status"
@@ -188,6 +196,7 @@
                       </svg>
                     </button>
                     <button
+                      v-if="currentUser.role === 'admin' || currentUser.email === item.customer_id"
                       class="action-btn delete-btn"
                       @click="confirmDelete(item)"
                       title="Delete Complaint"
@@ -302,7 +311,7 @@ export default {
   data() {
     return {
       // Auth
-      currentUser: { username: "", role: "", token: "" },
+      currentUser: { username: "", role: "", token: "", email: "" },
       // Complaints
       complaints: [],
       form: { customer_id: null, title: "", description: "" },
@@ -316,31 +325,40 @@ export default {
     };
   },
   mounted() {
-    // Check if logged in from User Management
+    // Check if logged in from Central Portal
     const savedToken = localStorage.getItem("crm_token");
-    const savedUser = localStorage.getItem("crm_username");
-    const savedRole = localStorage.getItem("crm_role");
+    const savedUserJson = localStorage.getItem("crm_user");
     
-    if (savedToken && savedUser && savedRole) {
-      this.currentUser = {
-        username: savedUser,
-        role: savedRole === "1" ? "admin" : "user",
-        token: savedToken
-      };
-      this.fetchComplaints();
+    if (savedToken && savedUserJson) {
+      try {
+        const userObj = JSON.parse(savedUserJson);
+        this.currentUser = {
+          username: userObj.username,
+          role: userObj.role_id === 1 ? "admin" : "user",
+          token: savedToken,
+          email: userObj.email
+        };
+        // Auto-fill form email
+        this.form.customer_id = userObj.email;
+        this.fetchComplaints();
+      } catch(e) {
+        window.location.href = '/';
+      }
     } else {
-      // Not logged in or missing data, redirect to user management
-      window.location.href = '/usermgmt/dashboard';
+      // Not logged in or missing data, redirect to portal
+      window.location.href = '/';
     }
   },
   methods: {
+    goToPortal() {
+      window.location.href = "/";
+    },
     logout() {
-      this.currentUser = { username: "", role: "", token: "" };
+      this.currentUser = { username: "", role: "", token: "", email: "" };
       this.complaints = [];
       localStorage.removeItem("crm_token");
-      localStorage.removeItem("crm_username");
-      localStorage.removeItem("crm_role");
-      window.location.href = '/usermgmt/dashboard';
+      localStorage.removeItem("crm_user");
+      window.location.href = '/';
     },
     getAuthHeaders() {
       return {
@@ -426,7 +444,7 @@ export default {
       if (!this.selectedComplaint) return;
       try {
         const res = await fetch(
-          `${this.apiBase}?id=${this.selectedComplaint.id}`,
+          `${this.apiBase}?id=${this.selectedComplaint.id}&email=${encodeURIComponent(this.currentUser.email)}`,
           {
             method: "DELETE",
             headers: this.getAuthHeaders(),

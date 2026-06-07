@@ -21,26 +21,17 @@
     <div class="relative z-10 min-h-screen flex flex-col">
 
       <!-- ── Top Navigation ──────────────────────────────── -->
-      <header class="sticky top-0 z-50" style="
-        background: rgba(10,10,26,0.7);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-bottom: 1px solid rgba(255,255,255,0.08);
-      ">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-
-          <!-- Logo -->
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-lg"
-                 style="background: linear-gradient(135deg, #7c3aed, #4f46e5); box-shadow: 0 0 16px rgba(124,58,237,0.5)">
-              ◈
-            </div>
-            <div>
-              <p class="text-xs font-semibold" style="color: var(--text-secondary); letter-spacing: 0.1em;">CRM ENTERPRISE</p>
-              <p class="text-sm font-bold font-display text-white leading-tight">Feedback Module</p>
-            </div>
+      <!-- ── Top Navigation ──────────────────────────────── -->
+      <header class="app-header-unified">
+        <div class="unified-header-left">
+          <div class="unified-logo">◈</div>
+          <div class="unified-brand">
+            <p class="unified-subtitle">CRM ENTERPRISE</p>
+            <p class="unified-title">Feedback Module</p>
           </div>
-
+        </div>
+        
+        <div class="unified-header-center">
           <!-- Nav Tabs -->
           <nav class="flex items-center gap-1 p-1 rounded-xl"
                style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08)">
@@ -61,25 +52,29 @@
               <span class="hidden sm:inline">{{ tab.label }}</span>
             </button>
           </nav>
+        </div>
 
-          <!-- Right Actions -->
-          <div class="flex items-center gap-4">
-            <button @click="goToPortal" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-white/10 transition-colors" style="color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.2);">
-              <span class="text-base">🏠</span> Portal
-            </button>
-            <button @click="logout" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors hover:bg-red-500/20" style="color: #ef4444; border: 1px solid rgba(239,68,68,0.3);">
-              Logout
-            </button>
-            <!-- API Status -->
-            <div class="flex items-center gap-2 hidden md:flex">
-              <span class="w-2 h-2 rounded-full animate-pulse"
-                    :style="{ background: apiStatus === 'healthy' ? '#10b981' : apiStatus === 'checking' ? '#f59e0b' : '#ef4444' }">
-              </span>
-              <span class="text-xs" style="color: var(--text-secondary)">
-                {{ apiStatus === 'healthy' ? 'API Online' : apiStatus === 'checking' ? 'Connecting...' : 'API Offline' }}
-              </span>
-            </div>
+        <div class="unified-header-right">
+          <!-- API Status -->
+          <div class="flex items-center gap-2 hidden md:flex" style="margin-right: 10px;">
+            <span class="w-2 h-2 rounded-full animate-pulse"
+                  :style="{ background: apiStatus === 'healthy' ? '#10b981' : apiStatus === 'checking' ? '#f59e0b' : '#ef4444' }">
+            </span>
+            <span class="text-xs" style="color: var(--text-secondary)">
+              {{ apiStatus === 'healthy' ? 'API Online' : apiStatus === 'checking' ? 'Connecting...' : 'API Offline' }}
+            </span>
           </div>
+
+          <button @click="goToPortal" class="unified-btn-portal" title="Back to Portal">
+            🏠 Portal
+          </button>
+          <div class="unified-user-info">
+            <span class="unified-role">{{ user?.role || 'USER' }}</span>
+            <span class="unified-username">{{ user?.username || 'Agent' }}</span>
+          </div>
+          <button @click="logout" class="unified-btn-logout">
+            Logout
+          </button>
         </div>
       </header>
 
@@ -255,3 +250,139 @@ onMounted(() => {
   checkApiHealth()
 })
 </script>
+
+<style scoped>
+/* Unified Header CSS */
+.app-header-unified {
+  height: 70px;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  color: #e2e8f0;
+}
+
+.unified-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.unified-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: white;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  box-shadow: 0 0 16px rgba(124, 58, 237, 0.5);
+}
+
+.unified-brand {
+  display: flex;
+  flex-direction: column;
+}
+
+.unified-subtitle {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.1em;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.unified-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.unified-header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.unified-header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.unified-btn-portal {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.unified-btn-portal:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.unified-user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px 12px 4px 4px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.unified-role {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: rgba(124, 58, 237, 0.2);
+  color: #c4b5fd;
+  text-transform: uppercase;
+}
+
+.unified-username {
+  font-size: 0.9rem;
+  color: #e2e8f0;
+  font-weight: 500;
+}
+
+.unified-btn-logout {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #ef4444;
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.unified-btn-logout:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+</style>

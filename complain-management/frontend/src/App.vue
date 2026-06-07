@@ -8,52 +8,28 @@
 
     <!-- Main App View -->
     <main v-if="currentUser.token" class="main-content">
-      <header class="app-header">
-        <div class="logo">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path
-              d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
-            ></path>
-            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-            <line x1="12" y1="22.08" x2="12" y2="12"></line>
-          </svg>
-          <h2>CRM - Complain Management Module</h2>
-        </div>
-        <div class="header-right">
-          <div class="user-info">
-            <span
-              class="role-badge"
-              :class="{ 'role-admin': currentUser.role === 'admin' }"
-            >
-              {{ currentUser.role?.toUpperCase() }}
-            </span>
-            <span class="username">{{ currentUser.username }}</span>
+      <header class="app-header-unified">
+        <div class="unified-header-left">
+          <div class="unified-logo">◈</div>
+          <div class="unified-brand">
+            <p class="unified-subtitle">CRM ENTERPRISE</p>
+            <p class="unified-title">Complain Management</p>
           </div>
-          <button @click="goToPortal" class="portal-btn" title="Back to Portal" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-size: 0.85rem; font-weight: 500; display: flex; align-items: center; gap: 6px; margin-right: 12px;">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-              <polyline points="9 22 9 12 15 12 15 22"></polyline>
-            </svg>
-            Portal
+        </div>
+        
+        <div class="unified-header-center">
+        </div>
+
+        <div class="unified-header-right">
+          <button @click="goToPortal" class="unified-btn-portal" title="Back to Portal">
+            🏠 Portal
           </button>
-          <button @click="logout" class="logout-btn" title="Logout">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-              <polyline points="16 17 21 12 16 7"></polyline>
-              <line x1="21" y1="12" x2="9" y2="12"></line>
-            </svg>
+          <div class="unified-user-info">
+            <span class="unified-role">{{ currentUser.role || 'USER' }}</span>
+            <span class="unified-username">{{ currentUser.username || 'Agent' }}</span>
+          </div>
+          <button @click="logout" class="unified-btn-logout">
+            Logout
           </button>
         </div>
       </header>
@@ -1212,9 +1188,143 @@ td {
   height: 18px;
 }
 
-.logout-btn:hover {
+.unified-btn-logout:hover {
   border-color: #ef4444;
   background: rgba(239, 68, 68, 0.1);
   color: #ef4444;
+}
+
+/* Unified Header CSS */
+.app-header-unified {
+  height: 70px;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  color: #e2e8f0;
+}
+
+.unified-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.unified-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: white;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  box-shadow: 0 0 16px rgba(124, 58, 237, 0.5);
+}
+
+.unified-brand {
+  display: flex;
+  flex-direction: column;
+}
+
+.unified-subtitle {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.1em;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.unified-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.unified-header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.unified-header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.unified-btn-portal {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.unified-btn-portal:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.unified-user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px 12px 4px 4px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.unified-role {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: rgba(124, 58, 237, 0.2);
+  color: #c4b5fd;
+  text-transform: uppercase;
+}
+
+.unified-username {
+  font-size: 0.9rem;
+  color: #e2e8f0;
+  font-weight: 500;
+}
+
+.unified-btn-logout {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #ef4444;
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.unified-btn-logout:hover {
+  background: rgba(239, 68, 68, 0.1);
 }
 </style>

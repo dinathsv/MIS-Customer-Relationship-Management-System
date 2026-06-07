@@ -1,24 +1,28 @@
 <template>
-  <header class="app-header">
-    <div class="header-left">
+  <header class="app-header-unified">
+    <div class="unified-header-left">
+      <div class="unified-logo">◈</div>
+      <div class="unified-brand">
+        <p class="unified-subtitle">CRM ENTERPRISE</p>
+        <p class="unified-title">Sales Module</p>
+      </div>
+    </div>
+    
+    <div class="unified-header-center">
       <h2>{{ $route.name }}</h2>
     </div>
-    <div class="header-right">
-      <button @click="goToPortal" class="header-portal-btn" title="Back to Portal">
+
+    <div class="unified-header-right">
+      <button @click="goToPortal" class="unified-btn-portal" title="Back to Portal">
         🏠 Portal
       </button>
-      <div class="header-search">
-        <span class="search-icon">🔍</span>
-        <input type="text" placeholder="Search..." class="search-input" />
+      <div class="unified-user-info">
+        <span class="unified-role">{{ user?.role || 'User' }}</span>
+        <span class="unified-username">{{ user?.username || 'Admin' }}</span>
       </div>
-      <button class="header-btn" title="Notifications"></button>
-      <div class="user-menu" @click="showMenu = !showMenu">
-        <div class="user-avatar">{{ userInitial }}</div>
-        <span class="user-name">{{ user?.username || 'Admin' }}</span>
-        <div class="dropdown" v-if="showMenu">
-          <button @click="logout">Logout</button>
-        </div>
-      </div>
+      <button @click="logout" class="unified-btn-logout">
+        Logout
+      </button>
     </div>
   </header>
 </template>
@@ -28,10 +32,8 @@ import { useAuthStore } from '../../stores/auth'
 
 export default {
   name: 'AppHeader',
-  data() { return { showMenu: false } },
   computed: {
-    user() { return useAuthStore().user },
-    userInitial() { return (this.user?.username || 'A')[0].toUpperCase() }
+    user() { return useAuthStore().user }
   },
   methods: {
     goToPortal() {
@@ -46,147 +48,136 @@ export default {
 </script>
 
 <style scoped>
-.app-header {
-  height: var(--header-height);
+.app-header-unified {
+  height: 70px;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 28px;
-  background: var(--bg-card);
-  border-bottom: 1px solid var(--border-color);
+  padding: 0 24px;
   position: sticky;
   top: 0;
   z-index: 50;
+  color: #e2e8f0;
 }
 
-.header-left h2 {
+.unified-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.unified-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: white;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  box-shadow: 0 0 16px rgba(124, 58, 237, 0.5);
+}
+
+.unified-brand {
+  display: flex;
+  flex-direction: column;
+}
+
+.unified-subtitle {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.1em;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.unified-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.unified-header-center h2 {
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #f8fafc;
+  margin: 0;
 }
 
-.header-right {
+.unified-header-right {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-.header-portal-btn {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  padding: 6px 12px;
-  color: var(--text-primary);
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--transition-fast);
+.unified-btn-portal {
   display: flex;
   align-items: center;
   gap: 6px;
-}
-.header-portal-btn:hover {
-  background: var(--bg-glass-hover);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.header-search {
+.unified-btn-portal:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.unified-user-info {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-full);
-  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px 12px 4px 4px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.search-icon { font-size: 0.9rem; }
-.search-input {
-  background: none;
-  border: none;
-  color: var(--text-primary);
-  font-family: inherit;
-  font-size: 0.85rem;
-  outline: none;
-  width: 180px;
+.unified-role {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: rgba(124, 58, 237, 0.2);
+  color: #c4b5fd;
+  text-transform: uppercase;
 }
 
-.header-btn {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 50%;
-  width: 38px;
-  height: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  font-size: 1rem;
-}
-
-.header-btn:hover { background: var(--bg-glass-hover); }
-
-.user-menu {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  transition: background var(--transition-fast);
-  position: relative;
-}
-
-.user-menu:hover { background: var(--bg-secondary); }
-
-.user-avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--color-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.85rem;
-  color: #fff;
-}
-
-.user-name {
-  font-size: 0.85rem;
-  color: var(--text-primary);
+.unified-username {
+  font-size: 0.9rem;
+  color: #e2e8f0;
   font-weight: 500;
 }
 
-.dropdown {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  margin-top: 8px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  padding: 4px;
-  min-width: 140px;
-  box-shadow: var(--shadow-md);
-  animation: slideUp 0.2s ease;
-}
-
-.dropdown button {
-  width: 100%;
-  padding: 10px 14px;
-  background: none;
-  border: none;
-  color: var(--text-primary);
-  font-family: inherit;
+.unified-btn-logout {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 8px;
   font-size: 0.85rem;
+  font-weight: 500;
+  color: #ef4444;
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.3);
   cursor: pointer;
-  text-align: left;
-  border-radius: var(--radius-sm);
+  transition: all 0.2s;
 }
 
-.dropdown button:hover {
-  background: var(--bg-secondary);
-  color: var(--color-danger);
+.unified-btn-logout:hover {
+  background: rgba(239, 68, 68, 0.1);
 }
 </style>

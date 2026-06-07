@@ -1,20 +1,33 @@
 <template>
   <div class="dashboard-layout">
+    <header class="app-header-unified">
+      <div class="unified-header-left">
+        <div class="unified-logo">◈</div>
+        <div class="unified-brand">
+          <p class="unified-subtitle">CRM ENTERPRISE</p>
+          <p class="unified-title">User Management</p>
+        </div>
+      </div>
+      
+      <div class="unified-header-center">
+        <h2>{{ isAdmin ? 'Control Panel Dashboard' : 'User Profile' }}</h2>
+      </div>
+
+      <div class="unified-header-right">
+        <button @click="goToPortal" class="unified-btn-portal" title="Back to Portal">
+          🏠 Portal
+        </button>
+        <div class="unified-user-info">
+          <span class="unified-role">{{ current_role_name }}</span>
+          <span class="unified-username">{{ current_user }}</span>
+        </div>
+        <button @click="logout" class="unified-btn-logout">
+          Logout
+        </button>
+      </div>
+    </header>
+    
     <div class="main-content">
-      <header style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <h2>{{ isAdmin ? 'Control Panel Dashboard' : 'User Profile' }}</h2>
-          <div class="user-badge">Welcome, {{ current_user }}! (Role: {{ current_role_name }})</div>
-        </div>
-        <div style="display: flex; gap: 10px;">
-          <button @click="goToPortal" class="btn-secondary" style="display: flex; align-items: center; gap: 5px;">
-            🏠 Portal
-          </button>
-          <button @click="logout" class="btn-delete" style="display: flex; align-items: center; gap: 5px;">
-            Logout
-          </button>
-        </div>
-      </header>
 
       <!-- Profile Section (Visible to everyone) -->
       <div class="content-body" style="margin-bottom: 20px;">
@@ -302,11 +315,9 @@ onMounted(() => fetchUsers())
 </script>
 
 <style scoped>
-.dashboard-layout { font-family: 'Inter', sans-serif; background: transparent; min-height: 100vh; padding: 40px 20px; color: #e2e8f0; }
-.main-content { max-width: 1200px; margin: 0 auto; }
-header { display: flex; flex-direction: column; align-items: center; justify-content: center; padding-bottom: 25px; margin-bottom: 35px; text-align: center; }
+.dashboard-layout { font-family: 'Inter', sans-serif; background: transparent; min-height: 100vh; color: #e2e8f0; }
+.main-content { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
 header h2 { font-size: 28px; color: #f8fafc; margin-bottom: 15px; font-weight: 700; }
-.user-badge { background: rgba(99, 102, 241, 0.1); color: #a5b4fc; padding: 8px 16px; border-radius: 20px; font-weight: 500; font-size: 14px; border: 1px solid rgba(99, 102, 241, 0.2); }
 .content-body { background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(12px); padding: 30px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 30px; }
 .content-body h3 { color: #f8fafc; margin-top: 0; margin-bottom: 25px; font-size: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 15px; }
 
@@ -348,4 +359,144 @@ header h2 { font-size: 28px; color: #f8fafc; margin-bottom: 15px; font-weight: 7
 .form-control:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }
 select.form-control option { background: #1e293b; color: #f8fafc; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 30px; }
+
+/* Unified Header CSS */
+.app-header-unified {
+  height: 70px;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  color: #e2e8f0;
+}
+
+.unified-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.unified-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: white;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  box-shadow: 0 0 16px rgba(124, 58, 237, 0.5);
+}
+
+.unified-brand {
+  display: flex;
+  flex-direction: column;
+}
+
+.unified-subtitle {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.1em;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.unified-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.unified-header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.unified-header-center h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #f8fafc;
+  margin: 0;
+}
+
+.unified-header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.unified-btn-portal {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.unified-btn-portal:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.unified-user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px 12px 4px 4px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.unified-role {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: rgba(124, 58, 237, 0.2);
+  color: #c4b5fd;
+  text-transform: uppercase;
+}
+
+.unified-username {
+  font-size: 0.9rem;
+  color: #e2e8f0;
+  font-weight: 500;
+}
+
+.unified-btn-logout {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #ef4444;
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.unified-btn-logout:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
 </style>

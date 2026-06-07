@@ -1,18 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRM Enterprise Portal</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
-        
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: #0b0f19;
-            background-image: 
+            background-image:
                 radial-gradient(circle at 15% 50%, rgba(37, 99, 235, 0.15), transparent 25%),
                 radial-gradient(circle at 85% 30%, rgba(147, 51, 234, 0.15), transparent 25%);
             background-attachment: fixed;
@@ -76,8 +81,11 @@
         .card::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
             opacity: 0;
             transition: opacity 0.3s;
         }
@@ -110,10 +118,25 @@
         }
 
         /* Module Specific Hover Colors */
-        .card:nth-child(1):hover { border-color: #3b82f6; box-shadow: 0 20px 40px rgba(59, 130, 246, 0.15); }
-        .card:nth-child(2):hover { border-color: #ef4444; box-shadow: 0 20px 40px rgba(239, 68, 68, 0.15); }
-        .card:nth-child(3):hover { border-color: #8b5cf6; box-shadow: 0 20px 40px rgba(139, 92, 246, 0.15); }
-        .card:nth-child(4):hover { border-color: #10b981; box-shadow: 0 20px 40px rgba(16, 185, 129, 0.15); }
+        .card:nth-child(1):hover {
+            border-color: #3b82f6;
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.15);
+        }
+
+        .card:nth-child(2):hover {
+            border-color: #ef4444;
+            box-shadow: 0 20px 40px rgba(239, 68, 68, 0.15);
+        }
+
+        .card:nth-child(3):hover {
+            border-color: #8b5cf6;
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.15);
+        }
+
+        .card:nth-child(4):hover {
+            border-color: #10b981;
+            box-shadow: 0 20px 40px rgba(16, 185, 129, 0.15);
+        }
 
         /* Login Form Styles */
         #login-container {
@@ -124,7 +147,8 @@
             padding: 2.5rem;
             width: 100%;
             max-width: 400px;
-            display: none; /* hidden by default */
+            display: none;
+            /* hidden by default */
         }
 
         .form-group {
@@ -203,15 +227,16 @@
         }
 
         #portal-content {
-            display: none; /* hidden by default */
+            display: none;
+            /* hidden by default */
             width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-
     </style>
 </head>
+
 <body>
 
     <div class="user-info" id="user-info" style="display: none;">
@@ -239,7 +264,8 @@
             <button type="submit" class="btn-submit">Sign In</button>
         </form>
         <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: #94a3b8;">
-            Don't have an account? <a href="/usermgmt/register" style="color: #3b82f6; text-decoration: none;">Create Account</a>
+            Don't have an account? <a href="/usermgmt/register" style="color: #3b82f6; text-decoration: none;">Create
+                Account</a>
         </p>
     </div>
 
@@ -288,7 +314,7 @@
                     // Simple JWT decoding
                     const base64Url = token.split('.')[1];
                     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
                         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
                     }).join(''));
 
@@ -316,7 +342,7 @@
             portalContent.style.display = 'flex';
             userInfo.style.display = 'flex';
             welcomeText.textContent = `Welcome, ${claims.username || 'User'}`;
-            document.getElementById('card-complain').querySelector('h2').textContent = '⚠️ Complaints';
+            document.getElementById('card-complain').querySelector('h2').textContent = 'Complaints';
 
             // Role-based access control
             // Assuming role_id == 1 is admin.
@@ -354,12 +380,12 @@
                 if (res.ok && data.token) {
                     localStorage.setItem('crm_token', data.token);
                     localStorage.setItem('crm_user', JSON.stringify({
-                    user_id: data.user_id,
-                    username: data.username,
-                    email: data.email,
-                    role_id: data.role_id,
-                    role: data.role_id === 1 ? 'admin' : 'user'
-                }));
+                        user_id: data.user_id,
+                        username: data.username,
+                        email: data.email,
+                        role_id: data.role_id,
+                        role: data.role_id === 1 ? 'admin' : 'user'
+                    }));
                     errorMsg.style.display = 'none';
                     checkAuth();
                 } else {
@@ -380,4 +406,5 @@
         checkAuth();
     </script>
 </body>
+
 </html>

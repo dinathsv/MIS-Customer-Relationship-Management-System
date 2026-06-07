@@ -154,8 +154,14 @@ import axios from 'axios'
 
 const users = ref([])
 const currentUserProfile = ref({})
-const current_user = localStorage.getItem('crm_username') || 'User'
-const roleId = localStorage.getItem('crm_role')
+let parsedUser = { username: 'User', role_id: 4 }
+try {
+  const userStr = localStorage.getItem('crm_user')
+  if (userStr) parsedUser = JSON.parse(userStr)
+} catch(e) {}
+
+const current_user = parsedUser.username || localStorage.getItem('crm_username') || 'User'
+const roleId = String(parsedUser.role_id || localStorage.getItem('crm_role') || '4')
 const isAdmin = ref(roleId === '1')
 
 const roleNames = { '1': 'Admin', '2': 'Sales Agent', '3': 'Manager', '4': 'Customer' }

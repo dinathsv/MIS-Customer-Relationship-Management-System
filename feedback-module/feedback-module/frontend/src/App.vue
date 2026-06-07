@@ -108,7 +108,7 @@
               Review all submitted feedback from customers in real-time.
             </p>
           </div>
-          <div v-else key="analytics-hero">
+          <div v-else-if="activeTab === 'analytics' && isAdmin" key="analytics-hero">
             <div class="flex items-center gap-3 mb-1">
               <span class="text-3xl">📊</span>
               <h1 class="text-3xl font-bold font-display">
@@ -176,7 +176,7 @@
           </div>
 
           <!-- Analytics Tab -->
-          <div v-else key="analytics-tab">
+          <div v-else-if="activeTab === 'analytics' && isAdmin" key="analytics-tab">
             <AnalyticsDashboard ref="dashboardRef" />
           </div>
 
@@ -254,11 +254,7 @@ async function checkApiHealth() {
 }
 
 function onFeedbackSubmitted() {
-  // Auto-switch to analytics and refresh
-  setTimeout(() => {
-    activeTab.value = 'analytics'
-    setTimeout(() => dashboardRef.value?.loadData(), 300)
-  }, 2000)
+  // Do not switch tabs. The FeedbackForm component displays its own success message.
 }
 
 onMounted(() => {

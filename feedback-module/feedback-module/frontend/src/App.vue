@@ -62,14 +62,23 @@
             </button>
           </nav>
 
-          <!-- API Status -->
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full animate-pulse"
-                  :style="{ background: apiStatus === 'healthy' ? '#10b981' : apiStatus === 'checking' ? '#f59e0b' : '#ef4444' }">
-            </span>
-            <span class="text-xs hidden sm:inline" style="color: var(--text-secondary)">
-              {{ apiStatus === 'healthy' ? 'API Online' : apiStatus === 'checking' ? 'Connecting...' : 'API Offline' }}
-            </span>
+          <!-- Right Actions -->
+          <div class="flex items-center gap-4">
+            <button @click="goToPortal" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-white/10 transition-colors" style="color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.2);">
+              <span class="text-base">🏠</span> Portal
+            </button>
+            <button @click="logout" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors hover:bg-red-500/20" style="color: #ef4444; border: 1px solid rgba(239,68,68,0.3);">
+              Logout
+            </button>
+            <!-- API Status -->
+            <div class="flex items-center gap-2 hidden md:flex">
+              <span class="w-2 h-2 rounded-full animate-pulse"
+                    :style="{ background: apiStatus === 'healthy' ? '#10b981' : apiStatus === 'checking' ? '#f59e0b' : '#ef4444' }">
+              </span>
+              <span class="text-xs" style="color: var(--text-secondary)">
+                {{ apiStatus === 'healthy' ? 'API Online' : apiStatus === 'checking' ? 'Connecting...' : 'API Offline' }}
+              </span>
+            </div>
           </div>
         </div>
       </header>
@@ -86,6 +95,17 @@
             </div>
             <p style="color: var(--text-secondary); font-size: 0.9rem;">
               Submit a new feedback entry — linked directly to the CRM customer profile via Customer ID.
+            </p>
+          </div>
+          <div v-else-if="activeTab === 'list'" key="list-hero">
+            <div class="flex items-center gap-3 mb-1">
+              <span class="text-3xl">📋</span>
+              <h1 class="text-3xl font-bold font-display">
+                <span class="gradient-text">Feedback</span> Reviews
+              </h1>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">
+              Review all submitted feedback from customers in real-time.
             </p>
           </div>
           <div v-else key="analytics-hero">
@@ -150,6 +170,11 @@
             </div>
           </div>
 
+          <!-- Feedback List Tab -->
+          <div v-else-if="activeTab === 'list'" key="list-tab">
+            <FeedbackList />
+          </div>
+
           <!-- Analytics Tab -->
           <div v-else key="analytics-tab">
             <AnalyticsDashboard ref="dashboardRef" />
@@ -171,21 +196,36 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import FeedbackForm from './components/FeedbackForm.vue'
+import FeedbackList from './components/FeedbackList.vue'
 import AnalyticsDashboard from './components/AnalyticsDashboard.vue'
 import { useApi } from './composables/useApi.js'
 
 const { checkHealth } = useApi()
 
-const activeTab = ref('form')
+const userStr_init = localStorage.getItem('crm_user')
+const user_init = userStr_init ? JSON.parse(userStr_init) : null
+const isAdmin_init = user_init && user_init.role_id === 1
+
+const activeTab = ref(isAdmin_init ? 'list' : 'form')
 const apiStatus = ref('checking')
 const dashboardRef = ref(null)
 
-const tabs = [
-  { id: 'form',      label: 'Submit Feedback', icon: '📝' },
-  { id: 'analytics', label: 'Analytics',       icon: '📊' },
-]
+const userStr = localStorage.getItem('crm_user')
+const user = userStr ? JSON.parse(userStr) : null
+const isAdmin = user && user.role_id === 1
+
+const tabs = computed(() => {
+  if (isAdmin) {
+    return [
+      { id: 'list', label: 'Review Feedback', icon: '📋' },
+      { id: 'analytics', label: 'Analytics', icon: '📊' }
+    ]
+  } else {
+    return [ { id: 'form', label: 'Submit Feedback', icon: '📝' } ]
+  }
+})
 
 const categories = [
   'Product Quality', 'Customer Support', 'Delivery & Shipping',
@@ -193,6 +233,16 @@ const categories = [
 ]
 
 const ratingScale = ['Excellent', 'Good', 'Average', 'Poor', 'Terrible']
+
+function goToPortal() {
+  window.location.href = "/";
+}
+
+function logout() {
+  localStorage.removeItem("crm_token");
+  localStorage.removeItem("crm_user");
+  window.location.href = "/";
+}
 
 async function checkApiHealth() {
   try {
@@ -211,5 +261,12 @@ function onFeedbackSubmitted() {
   }, 2000)
 }
 
-onMounted(checkApiHealth)
+onMounted(() => {
+  const token = localStorage.getItem('crm_token')
+  if (!token) {
+    window.location.href = '/' // Redirect to portal
+    return
+  }
+  checkApiHealth()
+})
 </script>

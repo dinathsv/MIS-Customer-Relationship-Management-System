@@ -20,25 +20,20 @@
     </Transition>
 
     <form v-if="!submitted" @submit.prevent="handleSubmit" novalidate>
-      <!-- Customer ID -->
+      <!-- Email Address -->
       <div class="mb-5">
         <label class="block text-xs font-semibold uppercase tracking-wider mb-2" style="color: var(--text-secondary)">
-          Customer ID <span class="text-rose-400">*</span>
+          Email Address <span class="text-rose-400">*</span>
         </label>
         <div class="relative">
-          <select
-            v-model.number="form.customer_id"
-            class="glass-select pr-10"
+          <input
+            type="email"
+            v-model="form.customer_id"
+            placeholder="Enter your email"
+            class="glass-input w-full"
             :class="{ 'border-rose-500/60': errors.customer_id }"
-            @change="validateField('customer_id')"
-          >
-            <option value="" disabled>Select a customer...</option>
-            <option v-for="u in users" :key="u.user_id" :value="u.user_id">
-              {{ u.full_name }} ({{ u.email }})
-            </option>
-          </select>
-          <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm"
-                style="color: var(--text-secondary)">▼</span>
+            @input="validateField('customer_id')"
+          />
         </div>
         <p v-if="errors.customer_id" class="text-xs text-rose-400 mt-1.5">{{ errors.customer_id }}</p>
       </div>
@@ -186,7 +181,9 @@ function validateField(field) {
   errors.value[field] = ''
   if (field === 'customer_id') {
     if (!form.value.customer_id) {
-      errors.value.customer_id = 'Please select a customer'
+      errors.value.customer_id = 'Please enter your email'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.value.customer_id)) {
+      errors.value.customer_id = 'Please enter a valid email address'
     }
   }
   if (field === 'rating' && !form.value.rating) {
@@ -238,18 +235,19 @@ function resetForm() {
   submitError.value = ''
 }
 
-async function fetchUsers() {
-  try {
-    const res = await fetch('http://localhost:8080/api/v1/users/public')
-    users.value = await res.json()
-  } catch (err) {
-    console.error("Error fetching users:", err)
-  }
-}
-
 const emit = defineEmits(['submitted'])
 
-// Load recent and users on mount
+// Auto-fill email if logged in
+try {
+  const crmUser = localStorage.getItem('crm_user');
+  if (crmUser) {
+    const user = JSON.parse(crmUser);
+    if (user.email) {
+      form.value.customer_id = user.email;
+    }
+  }
+} catch (e) {}
+
+// Load recent on mount
 refreshRecent()
-fetchUsers()
 </script>

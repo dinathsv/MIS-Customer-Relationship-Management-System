@@ -39,9 +39,6 @@ router.beforeEach((to, from, next) => {
     if (!token) {
       alert("Please login to the portal first.")
       window.location.href = '/' // Redirect to portal root
-    } else if (!isAdmin) {
-      alert("Access Denied: User Management module is restricted to administrators only.")
-      window.location.href = '/' // Redirect to portal root
     } else {
       next()
     }

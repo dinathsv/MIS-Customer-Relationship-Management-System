@@ -316,6 +316,7 @@
             portalContent.style.display = 'flex';
             userInfo.style.display = 'flex';
             welcomeText.textContent = `Welcome, ${claims.username || 'User'}`;
+            document.getElementById('card-complain').querySelector('h2').textContent = '⚠️ Complaints';
 
             // Role-based access control
             // Assuming role_id == 1 is admin.

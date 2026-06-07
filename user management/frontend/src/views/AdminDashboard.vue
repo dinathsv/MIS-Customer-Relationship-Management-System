@@ -16,6 +16,25 @@
         </div>
       </header>
 
+      <!-- Profile Section (Visible to everyone) -->
+      <div class="content-body" style="margin-bottom: 20px;">
+        <h3>Your Profile Information</h3>
+        <p><strong>Full Name:</strong> {{ currentUserProfile?.full_name }}</p>
+        <p><strong>Username:</strong> {{ currentUserProfile?.username }}</p>
+        <p><strong>Email:</strong> {{ currentUserProfile?.email }}</p>
+        <p><strong>Status:</strong> <span class="status-tag" :class="(currentUserProfile?.status || 'active').toLowerCase()">{{ currentUserProfile?.status || 'Active' }}</span></p>
+        
+        <div style="margin-top: 20px;">
+          <button class="btn-primary" @click="editProfile" style="margin-right: 10px;">Edit Profile</button>
+          <button class="btn-secondary" @click="changePassword">Change Password</button>
+        </div>
+
+        <p v-if="!isAdmin" style="margin-top: 15px; color: #6b7280; font-size: 14px;">
+          * Only administrators have full access to manage other users in the CRM system.
+        </p>
+      </div>
+
+      <!-- Users List (Admin Only) -->
       <div class="content-body" v-if="isAdmin">
         <h3>System Registered Users List</h3>
         <table class="user-table">
@@ -43,23 +62,6 @@
             </tr>
           </tbody>
         </table>
-      </div>
-
-      <div class="content-body" v-else>
-        <h3>Your Profile Information</h3>
-        <p><strong>Full Name:</strong> {{ users[0]?.full_name }}</p>
-        <p><strong>Username:</strong> {{ users[0]?.username }}</p>
-        <p><strong>Email:</strong> {{ users[0]?.email }}</p>
-        <p><strong>Status:</strong> <span class="status-tag" :class="(users[0]?.status || 'active').toLowerCase()">{{ users[0]?.status || 'Active' }}</span></p>
-        
-        <div style="margin-top: 20px;">
-          <button class="btn-primary" @click="editProfile" style="margin-right: 10px;">Edit Profile</button>
-          <button class="btn-secondary" @click="changePassword">Change Password</button>
-        </div>
-
-        <p style="margin-top: 15px; color: #6b7280; font-size: 14px;">
-          * Only administrators have full access to manage other users in the CRM system.
-        </p>
       </div>
     </div>
 
@@ -151,6 +153,7 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
 const users = ref([])
+const currentUserProfile = ref({})
 const current_user = localStorage.getItem('crm_username') || 'User'
 const roleId = localStorage.getItem('crm_role')
 const isAdmin = ref(roleId === '1')
@@ -183,19 +186,22 @@ const fetchUsers = async () => {
   try {
     const token = localStorage.getItem('crm_token')
     
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    const userId = payload.user_id
+    
+    // Always fetch current user's profile
+    const meRes = await axios.get(`/api/v1/users/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    currentUserProfile.value = meRes.data || {}
+    
     if (isAdmin.value) {
       const res = await axios.get('/api/v1/users', {
         headers: { Authorization: `Bearer ${token}` }
       })
       users.value = res.data || []
     } else {
-      const payload = JSON.parse(atob(token.split('.')[1]))
-      const userId = payload.user_id
-      
-      const res = await axios.get(`/api/v1/users/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      users.value = [res.data]
+      users.value = []
     }
   } catch (err) {
     console.error("Failed to fetch users", err)
@@ -244,7 +250,7 @@ const deleteUser = async (id) => {
 }
 
 const editProfile = () => {
-  profileData.value = { full_name: users.value[0]?.full_name, username: users.value[0]?.username, email: users.value[0]?.email }
+  profileData.value = { full_name: currentUserProfile.value?.full_name, username: currentUserProfile.value?.username, email: currentUserProfile.value?.email }
   showProfileModal.value = true
 }
 

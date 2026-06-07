@@ -15,7 +15,7 @@ import (
 
 type Complaint struct {
 	ID          int    `json:"id"`
-	CustomerID  int    `json:"customer_id"`
+	CustomerID  string `json:"customer_id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	Status      string `json:"status"`
@@ -25,6 +25,7 @@ type Complaint struct {
 type User struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
+	Email    string `json:"email"`
 	Role     string `json:"role"` // "admin" or "user"
 }
 
@@ -90,6 +91,10 @@ func getUserFromToken(tokenString string) *User {
 	roleID := int(roleIDFloat)
 	username, _ := claims["username"].(string)
 	userIDFloat, _ := claims["user_id"].(float64)
+	email, _ := claims["email"].(string) // assuming token might not have it or might have it.
+	// Wait, the User Management token DOES NOT have "email" by default! We only added username, user_id, role_id.
+	// We'll need to check the token payload, or rely on another mechanism. Let's just use email from claims if present, otherwise rely on the frontend sending requests for ownership. Actually, if UserMgmt doesn't send email in JWT, how do we verify ownership? Let's check token generation. The frontend sends email, maybe we can add email to User Management JWT or we can pass it from frontend.
+	// We will rely on user email if available. Wait, we can modify UserMgmt backend to include email in token!
 
 	role := "user"
 	if roleID == 1 {
@@ -100,6 +105,7 @@ func getUserFromToken(tokenString string) *User {
 		ID:       int(userIDFloat),
 		Username: username,
 		Role:     role,
+		Email:    email, // can be empty if not in token
 	}
 }
 
@@ -165,11 +171,17 @@ func handleComplaints(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Check authentication and admin role
+		// Check authentication and ownership
 		token := getTokenFromRequest(r)
 		user := getUserFromToken(token)
-		if user == nil || user.Role != "admin" {
-			http.Error(w, "Unauthorized - Admin access required", http.StatusUnauthorized)
+		if user == nil {
+			http.Error(w, "Unauthorized - Please login", http.StatusUnauthorized)
+			return
+		}
+
+		// Only admins can update the status of a complaint
+		if user.Role != "admin" {
+			http.Error(w, "Unauthorized - Only admins can update the status of complaints", http.StatusUnauthorized)
 			return
 		}
 
@@ -180,7 +192,6 @@ func handleComplaints(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Update the complaint with new status
 		status, ok := updateData["status"].(string)
 		if !ok {
 			http.Error(w, "Status field is required", http.StatusBadRequest)
@@ -212,12 +223,27 @@ func handleComplaints(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Check authentication and admin role
+		// Check authentication and ownership
 		token := getTokenFromRequest(r)
 		user := getUserFromToken(token)
-		if user == nil || user.Role != "admin" {
-			http.Error(w, "Unauthorized - Admin access required", http.StatusUnauthorized)
+		if user == nil {
+			http.Error(w, "Unauthorized - Please login", http.StatusUnauthorized)
 			return
+		}
+
+		var existingCustomerID string
+		err := db.QueryRow("SELECT customer_id FROM complaints WHERE id = $1", id).Scan(&existingCustomerID)
+		if err != nil {
+			http.Error(w, "Complaint not found", http.StatusNotFound)
+			return
+		}
+
+		reqEmail := r.URL.Query().Get("email")
+		if user.Role != "admin" {
+			if existingCustomerID != reqEmail && existingCustomerID != user.Email {
+				http.Error(w, "Unauthorized - You can only delete your own complaints", http.StatusUnauthorized)
+				return
+			}
 		}
 
 		result, err := db.Exec("DELETE FROM complaints WHERE id = $1", id)

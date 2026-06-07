@@ -323,11 +323,16 @@
             if (claims.role_id !== 1) {
                 headerDesc.textContent = "Welcome to the User Portal. Select an available module below.";
                 document.getElementById('card-sales').style.display = 'none';
-                document.getElementById('card-usermgmt').style.display = 'none'; // Optional: maybe only admin manages users
+                // Regular users can access user management to edit their profile
+                document.getElementById('card-usermgmt').style.display = 'flex';
+                document.getElementById('card-usermgmt').querySelector('h2').textContent = 'My Profile';
+                document.getElementById('card-usermgmt').querySelector('p').textContent = 'View and edit your personal profile information and change your password.';
             } else {
                 headerDesc.textContent = "Welcome to the Admin Command Center. Select a module below to manage your enterprise operations.";
                 document.getElementById('card-sales').style.display = 'flex';
                 document.getElementById('card-usermgmt').style.display = 'flex';
+                document.getElementById('card-usermgmt').querySelector('h2').textContent = 'User Management';
+                document.getElementById('card-usermgmt').querySelector('p').textContent = 'Administer staff accounts, manage roles, and monitor active sessions across the platform.';
             }
         }
 
